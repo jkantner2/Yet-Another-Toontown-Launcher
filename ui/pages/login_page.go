@@ -138,6 +138,8 @@ func handleLoginSuccess(resp *TTRResponse) {
 
 	fmt.Println("Patch Manifest Content:")
 	fmt.Println(manifestContent)
+
+	// Run downloadAndInstallManifestFiles
 }
 
 // Download manifest. Return error or manifest in string
