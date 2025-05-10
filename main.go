@@ -1,13 +1,20 @@
 package main
 
 import (
+	"YATL/lib/logger"
 	"YATL/ui"
+	"fmt"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 )
 
 func main() {
+	err := logger.InitLogger()
+	if err != nil {
+		fmt.Println("Could not init Logger: %w", err)
+	}
+
 	YATLApp := app.New()
 	YATLWindow := YATLApp.NewWindow("Yet Another Toontown Launcher")
 	content := ui.BuildUI(YATLWindow)

@@ -12,6 +12,8 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+
+	"YATL/lib/patcher"
 )
 
 
@@ -119,9 +121,20 @@ func handleLoginSuccess(resp *TTRResponse) {
 	os.Setenv("TTR_GAMESERVER", resp.Gameserver)
 	os.Setenv("TTR_PLAYERCOOKIE", resp.Cookie)
 
-	// Prepare url for patching
-	patchURL := "https://cdn.toontownrewritten.com" + resp.Manifest
+	// Prepare mirrors for download & patching
+	mirrorResp, err := http.Get("https://www.toontownrewritten.com/api/mirrors");
+	if err != nil {
+		fmt.Println("Unable to get mirrors: ", err)
+	}
+	defer mirrorResp.Body.Close();
 
+	var mirrors []string;
+	json.NewDecoder(mirrorResp.Body).Decode(&mirrors);
+
+	// Until they have more than literally one mirror I'm not adding funcitonality for it
+	mirror := mirrors[0]
+
+	patchURL := "https://cdn.toontownrewritten.com" + resp.Manifest
 
 	// Let me know this all worked
 	fmt.Println("Login successful!")
@@ -139,7 +152,7 @@ func handleLoginSuccess(resp *TTRResponse) {
 	fmt.Println("Patch Manifest Content:")
 	fmt.Println(manifestContent)
 
-	// Run downloadAndInstallManifestFiles
+	patcher.DownloadAndInstallManifestFiles(mirror, []byte(manifestContent))
 }
 
 // Download manifest. Return error or manifest in string
