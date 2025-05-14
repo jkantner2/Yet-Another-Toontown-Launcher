@@ -12,12 +12,14 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	"github.com/rs/zerolog/log"
 
 	"YATL/lib/patcher"
 )
 
 
 const loginURL = "https://www.toontownrewritten.com/api/login?format=json"
+const TTRMirrors = "https://www.toontownrewritten.com/api/mirrors"
 
 type TTRResponse struct {
 	Success      	string `json:"success"`
@@ -122,9 +124,9 @@ func handleLoginSuccess(resp *TTRResponse) {
 	os.Setenv("TTR_PLAYERCOOKIE", resp.Cookie)
 
 	// Prepare mirrors for download & patching
-	mirrorResp, err := http.Get("https://www.toontownrewritten.com/api/mirrors");
+	mirrorResp, err := http.Get(TTRMirrors);
 	if err != nil {
-		fmt.Println("Unable to get mirrors: ", err)
+		log.Error().Str("mirrors", TTRMirrors).Err(err).Msg("Unable to GET download mirrors from TTR")
 	}
 	defer mirrorResp.Body.Close();
 
@@ -137,20 +139,16 @@ func handleLoginSuccess(resp *TTRResponse) {
 	patchURL := "https://cdn.toontownrewritten.com" + resp.Manifest
 
 	// Let me know this all worked
-	fmt.Println("Login successful!")
-	fmt.Println("Game Server:", resp.Gameserver)
-	fmt.Println("Play Cookie:", resp.Cookie)
-	fmt.Println("Patch Manifest URL:", patchURL)
+	log.Info().Str("Game server", resp.Gameserver).Str("Play cookie", resp.Cookie).Str("Patch manifest URL", patchURL).Msg("Login successfull")
 
 	// Handle Patching
 	manifestContent, err := downloadPatchManifest(patchURL)
 	if err != nil {
-		fmt.Println("Failed to download patch manifest:", err)
+		log.Error().Str("Patch manifest URL", patchURL).Err(err).Msg("Failed to download patch manifest")
 		return
 	}
 
-	fmt.Println("Patch Manifest Content:")
-	fmt.Println(manifestContent)
+	log.Info().Str("Patch Manifest", manifestContent).Msg("Successfully downloaded patch manifest")
 
 	patcher.DownloadAndInstallManifestFiles(mirror, []byte(manifestContent))
 }

@@ -69,7 +69,7 @@ func getPlatformString() string {
 
 // Downloads & Decompression
 
-func downloadFile(baseURL string, filename string, info PatchInfo, tempPath string, wg *sync.WaitGroup) {
+func downloadFile(baseURL string, filename string, info PatchInfo, tempPath string, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
 	url := fmt.Sprintf("%s/%s", baseURL, info.DL)
@@ -78,14 +78,14 @@ func downloadFile(baseURL string, filename string, info PatchInfo, tempPath stri
 	// Get data
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Error().Str("filename", filename,).Err(err).Msg("Error downloading File")
+		return fmt.Errorf("Error GETing File")
 	}
 	defer resp.Body.Close()
 
 	// Create blank file
 	out, err := os.Create(tempPath)
 	if err != nil {
-		log.Error().Str("tempPath", tempPath).Err(err).Msg("Error creating blank file")
+		return fmt.Errorf("Error creating blank file")
 	}
 	defer out.Close()
 
@@ -93,13 +93,22 @@ func downloadFile(baseURL string, filename string, info PatchInfo, tempPath stri
 	_, err = io.Copy(out, resp.Body)
 
 	if err != nil {
-		log.Error().Str("filename", filename).Err(err).Msg("Error copying data to file")
+		return fmt.Errorf("Error copying data to file")
 	}
 
 	// TODO
 	// Check hash of downloaded file against info hash
 
-	return
+	match, err := compareCheckSum(filename, info.Hash)
+	if err != nil {
+		return err
+	}
+
+	if match {
+		return nil
+	}
+
+	return fmt.Errorf("Checksums do not match")
 }
 
 func getSha1sum(filepath string) (string, error) {
@@ -118,15 +127,32 @@ func getSha1sum(filepath string) (string, error) {
 	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
 }
 
-func compareSha1sum(filename string) {
+
+// This needs to do two things:
+// Check .bz2 file after download to confirm download succeeded.
+// File name is .bz2 in temp dir,
+
+// Check existing file from prior download that has been extracted
+// Filename is existing file, compSum is from new manifest
+func compareCheckSum(filename string, checkSum string) (bool, error) {
+	if _, err := os.Stat(filename); err != nil {
+		return false, fmt.Errorf("File %s does not exist: %w", filename, err)
+	}
+
+	sha1Sum, err := getSha1sum(filename)
+	if err != nil {
+		return false, fmt.Errorf("Failed to get Sha1Sum of %s: %s", filename, err)
+	}
+
+	return sha1Sum == checkSum, nil
 }
 
-func DownloadAndInstallManifestFiles(baseURL string, rawManifest []byte) {
+func DownloadAndInstallManifestFiles(baseURL string, rawManifest []byte) error {
 	// Create tempFS for work
 	tempDir := generateTempDir()
 	if tempDir == nil {
 		log.Warn().Msg("Failed to access OS tempDir")
-		return
+		return fmt.Errorf("Failed to access OS tempDir")
 	}
 
 	// Parse manifest
@@ -142,7 +168,10 @@ func DownloadAndInstallManifestFiles(baseURL string, rawManifest []byte) {
 			continue
 		}
 		wg.Add(1)
-		downloadFile(baseURL, patch, info, filepath.Join(*tempDir, patch), &wg)
+		err := downloadFile(baseURL, patch, info, filepath.Join(*tempDir, patch), &wg)
+		if err != nil {
+			log.Error().Str("BaseURL", baseURL).Str("File", patch).Str("Patch URL", info.DL).Err(err).Msg("Failed to download file")
+		}
 		filesToDecompress[patch] = info.DL
 	}
 
@@ -160,7 +189,10 @@ func DownloadAndInstallManifestFiles(baseURL string, rawManifest []byte) {
 	err := installTTR(*tempDir)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to install TTR")
+		return fmt.Errorf("Failed to install TTR")
 	}
+
+	return nil
 }
 
 func generateTempDir() *string {
