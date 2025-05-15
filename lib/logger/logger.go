@@ -2,6 +2,7 @@ package logger
 
 import (
 	"YATL/lib/patcher"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -44,17 +45,26 @@ func rotateLogs(logDir string) error {
 	logFileOld := filepath.Join(logDir, "YATL.old.log")
 
 	// If old log exists remove it
-	if _, err := os.Stat(logFileOld); err != nil {
+	if _, err := os.Stat(logFileOld); err == nil {
+		// Old log exists
 		if err = os.Remove(logFileOld); err != nil {
 			return fmt.Errorf("Could not remove existing old log file: %w", err)
 		}
 	}
 
 	// Rotate Logs
-	if _, err := os.Stat(logFile); err != nil {
+	if _, err := os.Stat(logFile); err == nil {
+		// New log exists
 		if err = os.Rename(logFile, logFileOld); err != nil {
 			return fmt.Errorf("Could not rename current log to old log: %w", err)
 		}
+	} else if errors.Is(err, os.ErrNotExist) {
+		// No log files exist, make it.
+		_, err = os.Create(logFile)
+		if err != nil {
+			return fmt.Errorf("Could not create initial log file: %w", err)
+		}
+
 	}
 
 	return nil
@@ -64,6 +74,11 @@ func InitLogger() error {
 	logDir, err := getLogDirPath()
 	if err != nil {
 		return fmt.Errorf("Failed to find log dir path: %w", err)
+	}
+
+	err = os.MkdirAll(logDir, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("Failed to create log dir: %w", err)
 	}
 
 	err = rotateLogs(logDir)

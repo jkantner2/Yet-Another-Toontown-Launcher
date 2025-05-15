@@ -12,7 +12,7 @@ import (
 func main() {
 	err := logger.InitLogger()
 	if err != nil {
-		fmt.Println("Could not init Logger: %w", err)
+		fmt.Println("Could not init Logger: ", err)
 	}
 
 	YATLApp := app.New()

@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime"
 	"sync"
@@ -96,9 +97,6 @@ func downloadFile(baseURL string, filename string, info PatchInfo, tempPath stri
 		return fmt.Errorf("Error copying data to file")
 	}
 
-	// TODO
-	// Check hash of downloaded file against info hash
-
 	match, err := compareCheckSum(filename, info.Hash)
 	if err != nil {
 		return err
@@ -147,6 +145,21 @@ func compareCheckSum(filename string, checkSum string) (bool, error) {
 	return sha1Sum == checkSum, nil
 }
 
+func isFileInstalled(filename string, checkSum string) (bool, error) {
+	installDir, err := getInstallDirByOS()
+	if err != nil {
+		return false, fmt.Errorf("Could not get install directory: %w", err)
+	}
+
+	match, err := compareCheckSum(path.Join(installDir, filename), checkSum)
+
+	if err != nil {
+		return false, fmt.Errorf("Could not compare checksum: %w", err)
+	}
+
+	return match, nil
+}
+
 func DownloadAndInstallManifestFiles(baseURL string, rawManifest []byte) error {
 	// Create tempFS for work
 	tempDir := generateTempDir()
@@ -161,35 +174,47 @@ func DownloadAndInstallManifestFiles(baseURL string, rawManifest []byte) error {
 	platform := getPlatformString()
 
 	// Only dispatch downloads for required files
-	filesToDecompress := map[string]string{}
+	filesToInstall := map[string]string{}
 	for patch, info := range patchManifest {
+		// Skip if not for OS
 		if !isPatchForOS(info.Only, platform) {
 			log.Info().Str("File", patch).Msg("Skipping file")
 			continue
 		}
+
+		// Skip if compHash matches installed file
+		checkSumMatch, err := isFileInstalled(patch, info.CompHash)
+		if err != nil {
+			log.Error().Str("File", patch).Err(err).Msg("Error while comparing checksum of installed TTR (ignore if first time installing)")
+		} else if checkSumMatch {
+			continue
+		}
+
+		// Download otherwise
 		wg.Add(1)
-		err := downloadFile(baseURL, patch, info, filepath.Join(*tempDir, patch), &wg)
+		err = downloadFile(baseURL, patch, info, filepath.Join(*tempDir, patch), &wg)
 		if err != nil {
 			log.Error().Str("BaseURL", baseURL).Str("File", patch).Str("Patch URL", info.DL).Err(err).Msg("Failed to download file")
+			// TODO Retry download
 		}
-		filesToDecompress[patch] = info.DL
+		filesToInstall[patch] = info.DL
 	}
 
 	wg.Wait()
 	log.Info().Msg("Downloads Complete")
 
 	// Handle Decompression
-	for source, dest := range filesToDecompress {
+	// TODO handle .zip extra decompress on mac
+	for dest, source := range filesToInstall {
 		err := decompressFile(source, dest)
 		if err != nil {
 			log.Error().Str("source", source).Str("dest", dest).Err(err).Msg("Failed to decompress file")
 		}
 	}
 
-	err := installTTR(*tempDir)
+	err := installTTR(*tempDir, filesToInstall)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to install TTR")
-		return fmt.Errorf("Failed to install TTR")
+		return fmt.Errorf("Failed to install TTR: %w", err)
 	}
 
 	return nil
@@ -231,19 +256,24 @@ func decompressFile(sourceFile string, destFile string) error {
 
 // Installation
 
-func installTTR(tempDir string) error {
+func installTTR(tempDir string, filesToInstall map[string]string) error {
 	// Make dir for install
-	installDirectory, err := getInstallDirByOS()
+	installDir, err := getInstallDirByOS()
 	if err != nil {
 		return fmt.Errorf("Couldn't find install dir: %w", err)
 	}
 
-	err = os.MkdirAll(installDirectory, os.ModePerm)
+	err = os.MkdirAll(installDir, os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("Couldn't make install dir: %w", err)
 	}
-	// TODO
-	// Move files to Dirs & overwrite old ones
+
+	for file := range filesToInstall {
+		err := os.Rename(path.Join(tempDir, file), path.Join(installDir, file))
+		if err != nil {
+			return fmt.Errorf("Failed to rename file %s: %w", file, err)
+		}
+	}
 
 	return nil
 }

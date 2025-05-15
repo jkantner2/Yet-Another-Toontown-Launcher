@@ -16,7 +16,7 @@ const (
 	Suits
 	Doodle
 	Settings
-	SidebarLen int = iota
+	SidebarLen
 )
 
 func BuildUI(w fyne.Window) fyne.CanvasObject {
