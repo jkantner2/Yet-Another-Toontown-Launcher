@@ -1,6 +1,7 @@
 package patcher
 
 import (
+	"archive/zip"
 	"compress/bzip2"
 	"crypto/sha1"
 	"encoding/json"
@@ -11,6 +12,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 
 	"slices"
@@ -210,6 +212,10 @@ func DownloadAndInstallManifestFiles(baseURL string, rawManifest []byte) error {
 		if err != nil {
 			log.Error().Str("source", source).Str("dest", dest).Err(err).Msg("Failed to decompress file")
 		}
+		// There's an extre zip
+		if strings.HasSuffix(dest, ".zip") {
+			unzipFile(dest, strings.TrimSuffix(dest, ".zip"))
+		}
 	}
 
 	err := installTTR(*tempDir, filesToInstall)
@@ -250,6 +256,19 @@ func decompressFile(sourceFile string, destFile string) error {
 	if err != nil {
 		return fmt.Errorf("Failed to decompress: %w", err)
 	}
+
+	return nil
+}
+
+func unzipFile(sourceFile string, destFile string) error {
+	zipReader, err := zip.OpenReader(sourceFile)
+	if err != nil {
+		return fmt.Errorf("Unable to open zip reader for file %s: %w", sourceFile, err)
+	}
+	defer zipReader.Close()
+
+	// Zip from TTR is always dir
+	os.MkdirAll(destFile, 0755)
 
 	return nil
 }
