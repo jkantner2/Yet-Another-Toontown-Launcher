@@ -44,7 +44,9 @@ func parseManifest(rawManifest []byte) PatchManifest {
 	var patchManifest PatchManifest
 	err := json.Unmarshal(rawManifest, &patchManifest)
 	if err != nil {
-		log.Error().Str("Manifest", string(rawManifest)).Err(err).Msg("Failed to parse manifest")
+		log.Error().
+			Str("Manifest", string(rawManifest)).
+			Err(err).Msg("Failed to parse manifest")
 	}
 
 	return patchManifest
@@ -99,7 +101,7 @@ func downloadFile(baseURL string, filename string, info PatchInfo, tempPath stri
 		return fmt.Errorf("Error copying data to file")
 	}
 
-	match, err := compareCheckSum(filename, info.Hash)
+	match, err := compareCheckSum(filename, info.CompHash)
 	if err != nil {
 		return err
 	}
@@ -114,7 +116,7 @@ func downloadFile(baseURL string, filename string, info PatchInfo, tempPath stri
 func getSha1sum(filepath string) (string, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("File is not installed for sha1 check: %w", err)
 	}
 	defer file.Close()
 
@@ -126,7 +128,6 @@ func getSha1sum(filepath string) (string, error) {
 
 	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
 }
-
 
 // This needs to do two things:
 // Check .bz2 file after download to confirm download succeeded.
@@ -148,7 +149,7 @@ func compareCheckSum(filename string, checkSum string) (bool, error) {
 }
 
 func isFileInstalled(filename string, checkSum string) (bool, error) {
-	installDir, err := getInstallDirByOS()
+	installDir, err := GetInstallDirByOS()
 	if err != nil {
 		return false, fmt.Errorf("Could not get install directory: %w", err)
 	}
@@ -185,10 +186,15 @@ func DownloadAndInstallManifestFiles(baseURL string, rawManifest []byte) error {
 		}
 
 		// Skip if compHash matches installed file
-		checkSumMatch, err := isFileInstalled(patch, info.CompHash)
+		checkSumMatch, err := isFileInstalled(patch, info.Hash)
 		if err != nil {
-			log.Error().Str("File", patch).Err(err).Msg("Error while comparing checksum of installed TTR (ignore if first time installing)")
-		} else if checkSumMatch {
+			log.Error().
+				Str("File", patch).
+				Err(err).
+				Msg("Error while comparing checksum of installed TTR (ignore if first time installing)")
+		}
+
+		if checkSumMatch {
 			continue
 		}
 
@@ -196,10 +202,14 @@ func DownloadAndInstallManifestFiles(baseURL string, rawManifest []byte) error {
 		wg.Add(1)
 		err = downloadFile(baseURL, patch, info, filepath.Join(*tempDir, patch), &wg)
 		if err != nil {
-			log.Error().Str("BaseURL", baseURL).Str("File", patch).Str("Patch URL", info.DL).Err(err).Msg("Failed to download file")
+			log.Error().Str("BaseURL", baseURL).
+				Str("File", patch).
+				Str("Patch URL", info.DL).
+				Err(err).
+				Msg("Failed to download file")
 			// TODO Retry download
 		}
-		filesToInstall[patch] = info.DL
+		filesToInstall[patch] = patch
 	}
 
 	wg.Wait()
@@ -208,10 +218,19 @@ func DownloadAndInstallManifestFiles(baseURL string, rawManifest []byte) error {
 	// Handle Decompression
 	// TODO handle .zip extra decompress on mac
 	for dest, source := range filesToInstall {
-		err := decompressFile(source, dest)
+		sourcePath := filepath.Join(*tempDir, source)
+		destPath := filepath.Join(*tempDir, dest)
+
+		err := decompressFile(sourcePath, destPath)
 		if err != nil {
-			log.Error().Str("source", source).Str("dest", dest).Err(err).Msg("Failed to decompress file")
+			log.Error().
+				Str("source", sourcePath).
+				Str("dest", destPath).
+				Err(err).
+				Msg("Failed to decompress file")
+			continue
 		}
+
 		// There's an extre zip
 		if strings.HasSuffix(dest, ".zip") {
 			unzipFile(dest, strings.TrimSuffix(dest, ".zip"))
@@ -231,7 +250,10 @@ func generateTempDir() *string {
 
 	err := os.MkdirAll(tempDir, os.ModePerm)
 	if err != nil {
-		log.Warn().Str("tempDir", tempDir).Err(err).Msg("Error creating temporary directory")
+		log.Warn().
+			Str("tempDir", tempDir).
+			Err(err).
+			Msg("Error creating temporary directory")
 		return nil
 	}
 
@@ -240,21 +262,35 @@ func generateTempDir() *string {
 
 func decompressFile(sourceFile string, destFile string) error {
 	src, err := os.Open(sourceFile)
-	if err != nil {
-		log.Error().Str("Source file", sourceFile).Err(err).Msg("Error loading bz2 file")
-	}
 	defer src.Close()
+	tempFile := destFile + ".tmp"
+
+	if err != nil {
+		log.Error().
+			Str("Source file", sourceFile).
+			Err(err).
+			Msg("Error loading bz2 file")
+		return fmt.Errorf("Failed to decompress %s: %w", sourceFile, err)
+	}
 
 	bz2Reader := bzip2.NewReader(src)
-	dst, err := os.Create(destFile)
-	if err != nil {
-		log.Error().Str("destFile", destFile).Err(err).Msg("Error creating blank file")
-	}
+	dst, err := os.Create(tempFile)
 	defer dst.Close()
+	if err != nil {
+		log.Error().
+			Str("destFile", destFile).
+			Err(err).
+			Msg("Error creating blank file")
+	}
 
 	_, err = io.Copy(dst, bz2Reader)
 	if err != nil {
 		return fmt.Errorf("Failed to decompress: %w", err)
+	}
+
+	err = os.Rename(tempFile, sourceFile); if err != nil {
+		return fmt.Errorf("Failed to rename temp file: %w", err)
+
 	}
 
 	return nil
@@ -277,7 +313,7 @@ func unzipFile(sourceFile string, destFile string) error {
 
 func installTTR(tempDir string, filesToInstall map[string]string) error {
 	// Make dir for install
-	installDir, err := getInstallDirByOS()
+	installDir, err := GetInstallDirByOS()
 	if err != nil {
 		return fmt.Errorf("Couldn't find install dir: %w", err)
 	}
@@ -292,12 +328,22 @@ func installTTR(tempDir string, filesToInstall map[string]string) error {
 		if err != nil {
 			return fmt.Errorf("Failed to rename file %s: %w", file, err)
 		}
+		// Set TTREngine to executable on mac and linux
+		if (file == "TTREngine" || file == "Toontown Rewritten") && (runtime.GOOS == "linux" || runtime.GOOS == "darwin") {
+			err := os.Chmod(path.Join(installDir, file), 0755)
+			if err != nil {
+				log.Error().
+					Str("file", file).
+					Err(err).
+					Msg("Error setting file to be executable")
+			}
+		}
 	}
 
 	return nil
 }
 
-func getInstallDirByOS() (string, error) {
+func GetInstallDirByOS() (string, error) {
 	switch runtime.GOOS {
 	case "windows":
 		programFiles := os.Getenv("ProgramFiles")

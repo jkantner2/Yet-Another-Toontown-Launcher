@@ -8,6 +8,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
+	"path"
+	"runtime"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -17,20 +21,19 @@ import (
 	"YATL/lib/patcher"
 )
 
-
 const loginURL = "https://www.toontownrewritten.com/api/login?format=json"
 const TTRMirrors = "https://www.toontownrewritten.com/api/mirrors"
 
 type TTRResponse struct {
-	Success      	string `json:"success"`
-	Banner       	string `json:"banner,omitempty"`
-	ResponseToken 	string `json:"responseToken,omitempty"`
-	Gameserver   	string `json:"gameserver,omitempty"`
-	Cookie    	string `json:"cookie,omitempty"`
-	Manifest     	string `json:"manifest,omitempty"`
-	ETA          	string `json:"eta,omitempty"`
-	Position     	string `json:"position,omitempty"`
-	QueueToken   	string `json:"queueToken,omitempty"`
+	Success       string `json:"success"`
+	Banner        string `json:"banner,omitempty"`
+	ResponseToken string `json:"responseToken,omitempty"`
+	Gameserver    string `json:"gameserver,omitempty"`
+	Cookie        string `json:"cookie,omitempty"`
+	Manifest      string `json:"manifest,omitempty"`
+	ETA           string `json:"eta,omitempty"`
+	Position      string `json:"position,omitempty"`
+	QueueToken    string `json:"queueToken,omitempty"`
 }
 
 func NewLoginPage() fyne.CanvasObject {
@@ -57,7 +60,8 @@ func NewLoginPage() fyne.CanvasObject {
 }
 
 // The goal is to exit this function with TTR_GAMESERVER and TTR_PLAYCOOKIE in env
-//   and Patch Manifest returned
+//
+//	and Patch Manifest returned
 func handleLogin(username string, password string, statusLabel *widget.Label) {
 	resp, err := LoginTTR(username, password)
 	if err != nil {
@@ -66,21 +70,23 @@ func handleLogin(username string, password string, statusLabel *widget.Label) {
 	}
 
 	switch resp.Success {
-	case "true": 	// Full Seccess -> Get tokens and Download patch manifest
+	case "true": // Full Seccess -> Get tokens and Download patch manifest
 		handleLoginSuccess(resp)
 
 	case "delayed": // In Queue -> Poll until full success
 		statusLabel.SetText(fmt.Sprintf("In queue. ETA: %s sec, Position: %s\n", resp.ETA, resp.Position))
-		_ = resp.QueueToken // TODO
+		_ = resp.QueueToken
+		// TODO
 
 	case "partial": // 2fa -> Toon factor authenicate until full success
 		statusLabel.SetText("Two-factor auth required: " + resp.Banner)
+		// TODO
 
-	case "false": 	// Failure -> Give up ig
+	case "false": // Failure -> Give up ig
 		statusLabel.SetText("Login failed: " + resp.Banner)
+		// TODO
 
-
-	default: 	// Should never see this
+	default: // Should never see this
 		statusLabel.SetText("Unexpected login response")
 	}
 }
@@ -120,18 +126,21 @@ func LoginTTR(username string, password string) (*TTRResponse, error) {
 
 func handleLoginSuccess(resp *TTRResponse) {
 	// Set necessary env
-	os.Setenv("TTR_GAMESERVER", resp.Gameserver)
-	os.Setenv("TTR_PLAYERCOOKIE", resp.Cookie)
+	// os.Setenv("TTR_GAMESERVER", resp.Gameserver)
+	// os.Setenv("TTR_PLAYERCOOKIE", resp.Cookie)
 
 	// Prepare mirrors for download & patching
-	mirrorResp, err := http.Get(TTRMirrors);
+	mirrorResp, err := http.Get(TTRMirrors)
 	if err != nil {
-		log.Error().Str("mirrors", TTRMirrors).Err(err).Msg("Unable to GET download mirrors from TTR")
+		log.Error().
+			Str("mirrors", TTRMirrors).
+			Err(err).
+			Msg("Unable to GET download mirrors from TTR")
 	}
-	defer mirrorResp.Body.Close();
+	defer mirrorResp.Body.Close()
 
-	var mirrors []string;
-	json.NewDecoder(mirrorResp.Body).Decode(&mirrors);
+	var mirrors []string
+	json.NewDecoder(mirrorResp.Body).Decode(&mirrors)
 
 	// Until they have more than literally one mirror I'm not adding funcitonality for it
 	mirror := mirrors[0]
@@ -139,7 +148,11 @@ func handleLoginSuccess(resp *TTRResponse) {
 	patchURL := "https://cdn.toontownrewritten.com" + resp.Manifest
 
 	// Let me know this all worked
-	log.Info().Str("Game server", resp.Gameserver).Str("Play cookie", resp.Cookie).Str("Patch manifest URL", patchURL).Msg("Login successfull")
+	log.Info().
+		Str("Game server", resp.Gameserver).
+		Str("Play cookie", resp.Cookie).
+		Str("Patch manifest URL", patchURL).
+		Msg("Login successfull")
 
 	// Handle Patching
 	manifestContent, err := downloadPatchManifest(patchURL)
@@ -151,6 +164,34 @@ func handleLoginSuccess(resp *TTRResponse) {
 	log.Info().Str("Patch Manifest", manifestContent).Msg("Successfully downloaded patch manifest")
 
 	patcher.DownloadAndInstallManifestFiles(mirror, []byte(manifestContent))
+
+	// Now we're ready to try and play
+	binary := getBinaryName()
+	installDir, err := patcher.GetInstallDirByOS(); if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to get install directory when launching game")
+	}
+
+	binaryPath := path.Join(installDir, binary)
+
+	// setup command off binary
+	gameServerEnv := "TTR_GAMESERVER=" + resp.Gameserver
+	playerCookie := "TTR_PLAYCOOKIE=" + resp.Cookie
+
+	ttr := exec.Command(binaryPath)
+	ttr.Dir = installDir
+	ttr.Env = append(os.Environ(),
+		gameServerEnv,
+		playerCookie)
+	ttr.Stdout = os.Stdout
+	ttr.Stderr = os.Stderr
+
+
+	log.Info().Msg("Launching TTR instance...")
+	err = ttr.Start(); if err != nil {
+		log.Error().Err(err).Msg("Failed to Launch TTR")
+	}
 }
 
 // Download manifest. Return error or manifest in string
@@ -171,4 +212,21 @@ func downloadPatchManifest(manifestURL string) (string, error) {
 	}
 
 	return string(body), nil
+}
+
+// Selects the right binary based on OS and arch
+func getBinaryName() string {
+	switch runtime.GOOS {
+	case "windows":
+		if strings.Contains(runtime.GOARCH, "64") {
+			return "TTREngine64"
+		}
+		return "TTREngine"
+	case "darwin":
+		return "Toontown Rewritten"
+	case "linux":
+		return "TTREngine"
+	default:
+		return ""
+	}
 }
