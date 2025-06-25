@@ -53,7 +53,7 @@ func BuildUI(w fyne.Window) fyne.CanvasObject {
 		case Launch:
 			pageContainer.Objects = []fyne.CanvasObject{pages.NewLoginPage()}
 		case Calcs:
-			pageContainer.Objects = []fyne.CanvasObject{widget.NewLabel("Gag Calculator Page (coming soon)")}
+			pageContainer.Objects = []fyne.CanvasObject{pages.NewCalculatorPage()}
 		case Toon:
 			pageContainer.Objects = []fyne.CanvasObject{widget.NewLabel("Toon Page (coming soon)")}
 		case Suits:
