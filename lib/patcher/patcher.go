@@ -287,8 +287,13 @@ func decompressFile(sourceFile string, destFile string) error {
 		return fmt.Errorf("Failed to decompress: %w", err)
 	}
 
+	// Close files to prevent access errors on windows
 	src.Close()
+	dst.Close()
 
+	// Remove old file and replace with decompressed file
+	// (I dunno how mac/windows treat renames if file exists)
+	os.Remove(sourceFile)
 	err = os.Rename(tempFile, sourceFile); if err != nil {
 		return fmt.Errorf("Failed to rename temp file: %w", err)
 
