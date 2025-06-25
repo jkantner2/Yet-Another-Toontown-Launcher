@@ -262,7 +262,6 @@ func generateTempDir() *string {
 
 func decompressFile(sourceFile string, destFile string) error {
 	src, err := os.Open(sourceFile)
-	defer src.Close()
 	tempFile := destFile + ".tmp"
 
 	if err != nil {
@@ -287,6 +286,8 @@ func decompressFile(sourceFile string, destFile string) error {
 	if err != nil {
 		return fmt.Errorf("Failed to decompress: %w", err)
 	}
+
+	src.Close()
 
 	err = os.Rename(tempFile, sourceFile); if err != nil {
 		return fmt.Errorf("Failed to rename temp file: %w", err)

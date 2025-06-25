@@ -71,7 +71,7 @@ func handleLogin(username string, password string, statusLabel *widget.Label) {
 
 	switch resp.Success {
 	case "true": // Full Seccess -> Get tokens and Download patch manifest
-		handleLoginSuccess(resp)
+		handleLoginSuccess(resp, statusLabel)
 
 	case "delayed": // In Queue -> Poll until full success
 		statusLabel.SetText(fmt.Sprintf("In queue. ETA: %s sec, Position: %s\n", resp.ETA, resp.Position))
@@ -124,7 +124,7 @@ func LoginTTR(username string, password string) (*TTRResponse, error) {
 	return &ttrResp, nil
 }
 
-func handleLoginSuccess(resp *TTRResponse) {
+func handleLoginSuccess(resp *TTRResponse, statusLabel *widget.Label) {
 	// Set necessary env
 	// os.Setenv("TTR_GAMESERVER", resp.Gameserver)
 	// os.Setenv("TTR_PLAYERCOOKIE", resp.Cookie)
@@ -163,6 +163,7 @@ func handleLoginSuccess(resp *TTRResponse) {
 
 	log.Info().Str("Patch Manifest", manifestContent).Msg("Successfully downloaded patch manifest")
 
+	statusLabel.SetText("Downloading and Verifying files...")
 	patcher.DownloadAndInstallManifestFiles(mirror, []byte(manifestContent))
 
 	// Now we're ready to try and play
@@ -184,6 +185,7 @@ func handleLoginSuccess(resp *TTRResponse) {
 	ttr.Env = append(os.Environ(),
 		gameServerEnv,
 		playerCookie)
+	statusLabel.SetText(fmt.Sprintf("Have fun in Toontown!"))
 	ttr.Stdout = os.Stdout
 	ttr.Stderr = os.Stderr
 
