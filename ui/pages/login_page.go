@@ -164,36 +164,47 @@ func handleLoginSuccess(resp *TTRResponse, statusLabel *widget.Label) {
 	log.Info().Str("Patch Manifest", manifestContent).Msg("Successfully downloaded patch manifest")
 
 	statusLabel.SetText("Downloading and Verifying files...")
-	patcher.DownloadAndInstallManifestFiles(mirror, []byte(manifestContent))
+
+	// Download and install ttr in a seperate goroutine
+	done := make(chan error, 1)
+
+	go func() {
+		err := patcher.DownloadAndInstallManifestFiles(mirror, []byte(manifestContent))
+		done <- err
+	}()
 
 	// Now we're ready to try and play
-	binary := getBinaryName()
-	installDir, err := patcher.GetInstallDirByOS(); if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Failed to get install directory when launching game")
-	}
+	go func() {
+		err := <- done
+		binary := getBinaryName()
+		installDir, err := patcher.GetInstallDirByOS(); if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to get install directory when launching game")
+			return
+		}
 
-	binaryPath := path.Join(installDir, binary)
+		binaryPath := path.Join(installDir, binary)
 
-	// setup command off binary
-	gameServerEnv := "TTR_GAMESERVER=" + resp.Gameserver
-	playerCookie := "TTR_PLAYCOOKIE=" + resp.Cookie
+		// setup command off binary
+		gameServerEnv := "TTR_GAMESERVER=" + resp.Gameserver
+		playerCookie := "TTR_PLAYCOOKIE=" + resp.Cookie
 
-	ttr := exec.Command(binaryPath)
-	ttr.Dir = installDir
-	ttr.Env = append(os.Environ(),
-		gameServerEnv,
-		playerCookie)
-	statusLabel.SetText(fmt.Sprintf("Have fun in Toontown!"))
-	ttr.Stdout = os.Stdout
-	ttr.Stderr = os.Stderr
+		ttr := exec.Command(binaryPath)
+		ttr.Dir = installDir
+		ttr.Env = append(os.Environ(),
+			gameServerEnv,
+			playerCookie)
+		statusLabel.SetText(fmt.Sprintf("Have fun in Toontown!"))
+		ttr.Stdout = os.Stdout
+		ttr.Stderr = os.Stderr
 
 
-	log.Info().Msg("Launching TTR instance...")
-	err = ttr.Start(); if err != nil {
-		log.Error().Err(err).Msg("Failed to Launch TTR")
-	}
+		log.Info().Msg("Launching TTR instance...")
+		err = ttr.Start(); if err != nil {
+			log.Error().Err(err).Msg("Failed to Launch TTR")
+		}
+	}()
 }
 
 // Download manifest. Return error or manifest in string
