@@ -221,9 +221,9 @@ func getBinaryName() string {
 	switch runtime.GOOS {
 	case "windows":
 		if strings.Contains(runtime.GOARCH, "64") {
-			return "TTREngine64"
+			return "TTREngine64.exe"
 		}
-		return "TTREngine"
+		return "TTREngine.exe"
 	case "darwin":
 		return "Toontown Rewritten"
 	case "linux":
