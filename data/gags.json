@@ -1,308 +1,380 @@
-"Gags": {
-        "Trap": {
-                "Banana": {
-                        "Damage": 12,
-                        "OrgDamage": 14,
-                        "Accuracy": 0,
-                        "Stun": 50,
-                        "Shorthand": "Banana"
-                },
-                "Rake": {
-                        "Damage": 20,
-                        "OrgDamage": 22,
-                        "Accuracy": 0,
-                        "Stun": 50,
-                        "Shorthand": "Rake"
-                },
-                "Marbles": {
-                        "Damage": 35,
-                        "OrgDamage": 39,
-                        "Accuracy": 0,
-                        "Stun": 50,
-                        "Shorthand": "Marble"
-                },
-                "Quicksand": {
-                        "Damage": 50,
-                        "OrgDamage": 55,
-                        "Accuracy": 0,
-                        "Stun": 50,
-                        "Shorthand": "Sand"
-                },
-                "Trapdoor": {
-                        "Damage": 85,
-                        "OrgDamage": 94,
-                        "Accuracy": 0,
-                        "Stun": 50,
-                        "Shorthand": "Door"
-                },
-                "TNT": {
-                        "Damage": 180,
-                        "OrgDamage": 198,
-                        "Accuracy": 0,
-                        "Stun": 50,
-                        "Shorthand": "TNT"
-                },
-                "Railroad": {
-                        "Damage": 200,
-                        "OrgDamage": 220,
-                        "Accuracy": 0,
-                        "Stun": 50,
-                        "Shorthand": "Train"
-                }
-        },
-        "Lure": {
-                "$1 Bill": {
-                        "Damage": 60,
-                        "OrgDamage": 70,
-                        "Accuracy": 0,
-                        "Stun": 0,
-                        "Shorthand": "1$ Bill"
-                },
-                "Small Magnet": {
-                        "Damage": 55,
-                        "OrgDamage": 65,
-                        "Accuracy": 0,
-                        "Stun": 0,
-                        "Shorthand": "Mini Mag"
-                },
-                "5$ Bill": {
-                        "Damage": 70,
-                        "OrgDamage": 80,
-                        "Accuracy": 0,
-                        "Stun": 0,
-                        "Shorthand": "5$ Bill"
-                },
-                "Big Magnet": {
-                        "Damage": 65,
-                        "OrgDamage": 75,
-                        "Accuracy": 0,
-                        "Stun": 0,
-                        "Shorthand": "Big Mag"
-                },
-                "10$ Bill": {
-                        "Damage": 80,
-                        "OrgDamage": 90,
-                        "Accuracy": 0,
-                        "Stun": 0,
-                        "Shorthand": "10$ Bill"
-                },
-                "Hypno-goggles": {
-                        "Damage": 75,
-                        "OrgDamage": 85,
-                        "Accuracy": 0,
-                        "Stun": 0,
-                        "Shorthand": "Hypnos"
-                },
-                "Presentation": {
-                        "Damage": 90,
-                        "OrgDamage": 100,
-                        "Accuracy": 0,
-                        "Stun": 0,
-                        "Shorthand": "Pres"
-                }
-        },
-        "Sound": {
-                "Bike Horn": {
-                        "Damage": 4,
-                        "OrgDamage": 5,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Bike Horn"
-                },
-                "Whistle": {
-                        "Damage": 7,
-                        "OrgDamage": 8,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Whistle"
-                },
-                "Bugle": {
-                        "Damage": 11,
-                        "OrgDamage": 13,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Bugle"
-                },
-                "Aoogah": {
-                        "Damage": 16,
-                        "OrgDamage": 18,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Aoogah"
-                },
-                "Elephant Trunk": {
-                        "Damage": 21,
-                        "OrgDamage": 24,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Trunk"
-                },
-                "Fog Horn": {
-                        "Damage": 50,
-                        "OrgDamage": 55,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Fog"
-                },
-                "Opera Singer": {
-                        "Damage": 90,
-                        "OrgDamage": 99,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Opera"
-                }
-        },
-        "Throw": {
-                "Cupcake": {
-                        "Damage": 6,
-                        "OrgDamage": 7,
-                        "Accuracy": 75,
-                        "Stun": 25,
-                        "Shorthand": "Cupcake"
-                },
-                "Fruit Pie Slice": {
-                        "Damage": 10,
-                        "OrgDamage": 11,
-                        "Accuracy": 75,
-                        "Stun": 25,
-                        "Shorthand": "F Slice"
-                },
-                "Cream Pie Slice": {
-                        "Damage": 17,
-                        "OrgDamage": 19,
-                        "Accuracy": 75,
-                        "Stun": 25,
-                        "Shorthand": "C Slice"
-                },
-                "Whole Fruit Pie": {
-                        "Damage": 27,
-                        "OrgDamage": 30,
-                        "Accuracy": 75,
-                        "Stun": 25,
-                        "Shorthand": "Fruit"
-                },
-                "Whole Cream Pie": {
-                        "Damage": 40,
-                        "OrgDamage": 44,
-                        "Accuracy": 75,
-                        "Stun": 25,
-                        "Shorthand": "Cream"
-                },
-                "Birthday Cake": {
-                        "Damage": 100,
-                        "OrgDamage": 110,
-                        "Accuracy": 75,
-                        "Stun": 25,
-                        "Shorthand": "Bday"
-                },
-                "Wedding Cake": {
-                        "Damage": 120,
-                        "OrgDamage": 132,
-                        "Accuracy": 75,
-                        "Stun": 25,
-                        "Shorthand": "Wedding"
-                }
-        },
-        "Squirt": {
-                "Squirting Flower": {
-                        "Damage": 4,
-                        "OrgDamage": 5,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Flower"
-                },
-                "Glass of Water": {
-                        "Damage": 8,
-                        "OrgDamage": 10,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Glass"
-                },
-                "Squirt Gun": {
-                        "Damage": 12,
-                        "OrgDamage": 14,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Gun"
-                },
-                "Seltzer Bottle": {
-                        "Damage": 21,
-                        "OrgDamage": 25,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Seltzer"
-                },
-                "Fire Hose": {
-                        "Damage": 30,
-                        "OrgDamage": 35,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Hose"
-                },
-                "Storm Cloud": {
-                        "Damage": 80,
-                        "OrgDamage": 92,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Cloud"
-                },
-                "Fire Hose": {
-                        "Damage": 105,
-                        "OrgDamage": 121,
-                        "Accuracy": 95,
-                        "Stun": 25,
-                        "Shorthand": "Hose"
-                }
-        },
-        "Drop": {
-                "Flower Pot": {
-                        "Damage": 10,
-                        "OrgDamage": 12,
-                        "Accuracy": 50,
-                        "Stun": 25,
-                        "Shorthand": "Flower"
-                },
-                "Sandbag": {
-                        "Damage": 18,
-                        "OrgDamage": 21,
-                        "Accuracy": 50,
-                        "Stun": 25,
-                        "Shorthand": "Sandbag"
-                },
-                "Anvil": {
-                        "Damage": 30,
-                        "OrgDamage": 35,
-                        "Accuracy": 50,
-                        "Stun": 25,
-                        "Shorthand": "Anvil"
-                },
-                "Big Weight": {
-                        "Damage": 45,
-                        "OrgDamage": 52,
-                        "Accuracy": 50,
-                        "Stun": 25,
-                        "Shorthand": "Anvil"
-                },
-                "Safe": {
-                        "Damage": 70,
-                        "OrgDamage": 81,
-                        "Accuracy": 50,
-                        "Stun": 25,
-                        "Shorthand": "Safe"
-                },
-                "Grand Piano": {
-                        "Damage": 170,
-                        "OrgDamage": 196,
-                        "Accuracy": 50,
-                        "Stun": 25,
-                        "Shorthand": "Piano"
-                },
-                "Toontanic": {
-                        "Damage": 180,
-                        "OrgDamage": 207,
-                        "Accuracy": 50,
-                        "Stun": 25,
-                        "Shorthand": "Toontanic"
-                }
-        }
-}
+[
+  {
+    "GagType": "Trap",
+    "GagName": "Banana",
+    "Damage": 12,
+    "OrgDamage": 14,
+    "Accuracy": 0,
+    "Stun": 50,
+    "Shorthand": "Banana"
+  },
+  {
+    "GagType": "Trap",
+    "GagName": "Rake",
+    "Damage": 20,
+    "OrgDamage": 22,
+    "Accuracy": 0,
+    "Stun": 50,
+    "Shorthand": "Rake"
+  },
+  {
+    "GagType": "Trap",
+    "GagName": "Marbles",
+    "Damage": 35,
+    "OrgDamage": 39,
+    "Accuracy": 0,
+    "Stun": 50,
+    "Shorthand": "Marble"
+  },
+  {
+    "GagType": "Trap",
+    "GagName": "Quicksand",
+    "Damage": 50,
+    "OrgDamage": 55,
+    "Accuracy": 0,
+    "Stun": 50,
+    "Shorthand": "Quicksand"
+  },
+  {
+    "GagType": "Trap",
+    "GagName": "Trapdoor",
+    "Damage": 85,
+    "OrgDamage": 94,
+    "Accuracy": 0,
+    "Stun": 50,
+    "Shorthand": "Trapdoor"
+  },
+  {
+    "GagType": "Trap",
+    "GagName": "TNT",
+    "Damage": 180,
+    "OrgDamage": 198,
+    "Accuracy": 0,
+    "Stun": 50,
+    "Shorthand": "TNT"
+  },
+  {
+    "GagType": "Trap",
+    "GagName": "Railroad",
+    "Damage": 200,
+    "OrgDamage": 220,
+    "Accuracy": 0,
+    "Stun": 50,
+    "Shorthand": "Train"
+  },
+  {
+    "GagType": "Lure",
+    "GagName": "$1 Bill",
+    "Damage": 60,
+    "OrgDamage": 70,
+    "Accuracy": 0,
+    "Stun": 0,
+    "Shorthand": "1$ Bill"
+  },
+  {
+    "GagType": "Lure",
+    "GagName": "Small Magnet",
+    "Damage": 55,
+    "OrgDamage": 65,
+    "Accuracy": 0,
+    "Stun": 0,
+    "Shorthand": "Mini Mag"
+  },
+  {
+    "GagType": "Lure",
+    "GagName": "$5 Bill",
+    "Damage": 70,
+    "OrgDamage": 80,
+    "Accuracy": 0,
+    "Stun": 0,
+    "Shorthand": "$5 Bill"
+  },
+  {
+    "GagType": "Lure",
+    "GagName": "Big Magnet",
+    "Damage": 65,
+    "OrgDamage": 75,
+    "Accuracy": 0,
+    "Stun": 0,
+    "Shorthand": "Big Mag"
+  },
+  {
+    "GagType": "Lure",
+    "GagName": "$10 Bill",
+    "Damage": 80,
+    "OrgDamage": 90,
+    "Accuracy": 0,
+    "Stun": 0,
+    "Shorthand": "$10 Bill"
+  },
+  {
+    "GagType": "Lure",
+    "GagName": "Hypno-goggles",
+    "Damage": 75,
+    "OrgDamage": 85,
+    "Accuracy": 0,
+    "Stun": 0,
+    "Shorthand": "Hypnos"
+  },
+  {
+    "GagType": "Lure",
+    "GagName": "Presentation",
+    "Damage": 90,
+    "OrgDamage": 100,
+    "Accuracy": 0,
+    "Stun": 0,
+    "Shorthand": "Pres"
+  },
+  {
+    "GagType": "Sound",
+    "GagName": "Bike Horn",
+    "Damage": 4,
+    "OrgDamage": 5,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Bike Horn"
+  },
+  {
+    "GagType": "Sound",
+    "GagName": "Whistle",
+    "Damage": 7,
+    "OrgDamage": 8,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Whistle"
+  },
+  {
+    "GagType": "Sound",
+    "GagName": "Bugle",
+    "Damage": 11,
+    "OrgDamage": 13,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Bugle"
+  },
+  {
+    "GagType": "Sound",
+    "GagName": "Aoogah",
+    "Damage": 16,
+    "OrgDamage": 18,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Aoogah"
+  },
+  {
+    "GagType": "Sound",
+    "GagName": "Elephant Trunk",
+    "Damage": 21,
+    "OrgDamage": 24,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Trunk"
+  },
+  {
+    "GagType": "Sound",
+    "GagName": "Fog Horn",
+    "Damage": 50,
+    "OrgDamage": 55,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Fog"
+  },
+  {
+    "GagType": "Sound",
+    "GagName": "Opera Singer",
+    "Damage": 90,
+    "OrgDamage": 99,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Opera"
+  },
+  {
+    "GagType": "Throw",
+    "GagName": "Cupcake",
+    "Damage": 6,
+    "OrgDamage": 7,
+    "Accuracy": 75,
+    "Stun": 25,
+    "Shorthand": "Cupcake"
+  },
+  {
+    "GagType": "Throw",
+    "GagName": "Fruit Pie Slice",
+    "Damage": 10,
+    "OrgDamage": 11,
+    "Accuracy": 75,
+    "Stun": 25,
+    "Shorthand": "F Slice"
+  },
+  {
+    "GagType": "Throw",
+    "GagName": "Cream Pie Slice",
+    "Damage": 17,
+    "OrgDamage": 19,
+    "Accuracy": 75,
+    "Stun": 25,
+    "Shorthand": "C Slice"
+  },
+  {
+    "GagType": "Throw",
+    "GagName": "Whole Fruit Pie",
+    "Damage": 27,
+    "OrgDamage": 30,
+    "Accuracy": 75,
+    "Stun": 25,
+    "Shorthand": "Fruit"
+  },
+  {
+    "GagType": "Throw",
+    "GagName": "Whole Cream Pie",
+    "Damage": 40,
+    "OrgDamage": 44,
+    "Accuracy": 75,
+    "Stun": 25,
+    "Shorthand": "Cream"
+  },
+  {
+    "GagType": "Throw",
+    "GagName": "Birthday Cake",
+    "Damage": 100,
+    "OrgDamage": 110,
+    "Accuracy": 75,
+    "Stun": 25,
+    "Shorthand": "Bday"
+  },
+  {
+    "GagType": "Throw",
+    "GagName": "Wedding Cake",
+    "Damage": 120,
+    "OrgDamage": 132,
+    "Accuracy": 75,
+    "Stun": 25,
+    "Shorthand": "Wedding"
+  },
+  {
+    "GagType": "Squirt",
+    "GagName": "Squirting Flower",
+    "Damage": 4,
+    "OrgDamage": 5,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Flower"
+  },
+  {
+    "GagType": "Squirt",
+    "GagName": "Glass of Water",
+    "Damage": 8,
+    "OrgDamage": 10,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Glass"
+  },
+  {
+    "GagType": "Squirt",
+    "GagName": "Squirt Gun",
+    "Damage": 12,
+    "OrgDamage": 14,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Gun"
+  },
+  {
+    "GagType": "Squirt",
+    "GagName": "Seltzer Bottle",
+    "Damage": 21,
+    "OrgDamage": 25,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Seltzer"
+  },
+  {
+    "GagType": "Squirt",
+    "GagName": "Fire Hose",
+    "Damage": 30,
+    "OrgDamage": 35,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Hose"
+  },
+  {
+    "GagType": "Squirt",
+    "GagName": "Storm Cloud",
+    "Damage": 80,
+    "OrgDamage": 92,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Cloud"
+  },
+  {
+    "GagType": "Squirt",
+    "GagName": "Geyser",
+    "Damage": 105,
+    "OrgDamage": 121,
+    "Accuracy": 95,
+    "Stun": 25,
+    "Shorthand": "Geyser"
+  },
+  {
+    "GagType": "Drop",
+    "GagName": "Flower Pot",
+    "Damage": 10,
+    "OrgDamage": 12,
+    "Accuracy": 50,
+    "Stun": 25,
+    "Shorthand": "Pot"
+  },
+  {
+    "GagType": "Drop",
+    "GagName": "Sandbag",
+    "Damage": 18,
+    "OrgDamage": 21,
+    "Accuracy": 50,
+    "Stun": 25,
+    "Shorthand": "Sandbag"
+  },
+  {
+    "GagType": "Drop",
+    "GagName": "Anvil",
+    "Damage": 30,
+    "OrgDamage": 35,
+    "Accuracy": 50,
+    "Stun": 25,
+    "Shorthand": "Anvil"
+  },
+  {
+    "GagType": "Drop",
+    "GagName": "Big Weight",
+    "Damage": 45,
+    "OrgDamage": 52,
+    "Accuracy": 50,
+    "Stun": 25,
+    "Shorthand": "Anvil"
+  },
+  {
+    "GagType": "Drop",
+    "GagName": "Safe",
+    "Damage": 70,
+    "OrgDamage": 81,
+    "Accuracy": 50,
+    "Stun": 25,
+    "Shorthand": "Safe"
+  },
+  {
+    "GagType": "Drop",
+    "GagName": "Grand Piano",
+    "Damage": 170,
+    "OrgDamage": 196,
+    "Accuracy": 50,
+    "Stun": 25,
+    "Shorthand": "Piano"
+  },
+  {
+    "GagType": "Drop",
+    "GagName": "Toontanic",
+    "Damage": 180,
+    "OrgDamage": 207,
+    "Accuracy": 50,
+    "Stun": 25,
+    "Shorthand": "Toontanic"
+  }
+]
