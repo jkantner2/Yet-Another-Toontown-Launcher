@@ -143,11 +143,12 @@ func getGagDamage(attack Attack, isLured bool) int {
 		isLured = true
 	} else {
 		if isLured {
-			if attack.gag.GagType == "Drop" {
+			switch attack.gag.GagType {
+			case "Drop":
 				gagDamage = 0
-			} else if attack.gag.GagType == "Trap" {
+			case "Trap":
 				gagDamage = attack.gag.Damage
-			} else {
+			default:
 				gagDamage = int(math.Ceil(float64(attack.gag.Damage) * 1.5))
 			}
 		} else {

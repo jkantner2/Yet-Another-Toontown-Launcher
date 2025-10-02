@@ -7,9 +7,11 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"YATL/lib/multi"
 )
 
 func main() {
+	multi.Go_select_window()
 	err := logger.InitLogger()
 	if err != nil {
 		fmt.Println("Could not init Logger: ", err)
