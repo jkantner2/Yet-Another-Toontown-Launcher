@@ -1,4 +1,4 @@
-package pages
+package login
 
 import (
 	"bytes"
@@ -13,9 +13,6 @@ import (
 	"runtime"
 	"strings"
 
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/widget"
 	"github.com/rs/zerolog/log"
 
 	"YATL/lib/patcher"
@@ -36,34 +33,12 @@ type TTRResponse struct {
 	QueueToken    string `json:"queueToken,omitempty"`
 }
 
-func NewLoginPage() fyne.CanvasObject {
-	username := widget.NewEntry()
-	username.SetPlaceHolder("Username")
-
-	password := widget.NewPasswordEntry()
-	password.SetPlaceHolder("Password")
-
-	statusLabel := widget.NewLabel("")
-
-	loginBtn := widget.NewButton("Login", func() {
-		handleLogin(username.Text, password.Text, statusLabel)
-	})
-
-	form := container.NewVBox(
-		username,
-		password,
-		loginBtn,
-		statusLabel,
-	)
-
-	return form
-}
-
 // The goal is to exit this function with TTR_GAMESERVER and TTR_PLAYCOOKIE in env
+// ENTRY
 //
 //	and Patch Manifest returned
-func handleLogin(username string, password string, statusLabel *widget.Label) {
-	resp, err := LoginTTR(username, password)
+func HandleLogin(username string, password string) {
+	resp, err := loginTTR(username, password)
 	if err != nil {
 		fmt.Println("Error Logging In: ", err)
 		return
@@ -71,27 +46,23 @@ func handleLogin(username string, password string, statusLabel *widget.Label) {
 
 	switch resp.Success {
 	case "true": // Full Seccess -> Get tokens and Download patch manifest
-		handleLoginSuccess(resp, statusLabel)
+		handleLoginSuccess(resp)
 
 	case "delayed": // In Queue -> Poll until full success
-		statusLabel.SetText(fmt.Sprintf("In queue. ETA: %s sec, Position: %s\n", resp.ETA, resp.Position))
 		_ = resp.QueueToken
 		// TODO
 
 	case "partial": // 2fa -> Toon factor authenicate until full success
-		statusLabel.SetText("Two-factor auth required: " + resp.Banner)
 		// TODO
 
 	case "false": // Failure -> Give up ig
-		statusLabel.SetText("Login failed: " + resp.Banner)
 		// TODO
 
 	default: // Should never see this
-		statusLabel.SetText("Unexpected login response")
 	}
 }
 
-func LoginTTR(username string, password string) (*TTRResponse, error) {
+func loginTTR(username string, password string) (*TTRResponse, error) {
 	// Create form to send
 	form := url.Values{}
 	form.Set("username", username)
@@ -124,7 +95,7 @@ func LoginTTR(username string, password string) (*TTRResponse, error) {
 	return &ttrResp, nil
 }
 
-func handleLoginSuccess(resp *TTRResponse, statusLabel *widget.Label) {
+func handleLoginSuccess(resp *TTRResponse) {
 	// Set necessary env
 	// os.Setenv("TTR_GAMESERVER", resp.Gameserver)
 	// os.Setenv("TTR_PLAYERCOOKIE", resp.Cookie)
@@ -163,7 +134,7 @@ func handleLoginSuccess(resp *TTRResponse, statusLabel *widget.Label) {
 
 	log.Info().Str("Patch Manifest", manifestContent).Msg("Successfully downloaded patch manifest")
 
-	statusLabel.SetText("Downloading and Verifying files...")
+	// statusLabel.SetText("Downloading and Verifying files...")
 
 	// Download and install ttr in a seperate goroutine
 	done := make(chan error, 1)
@@ -175,9 +146,10 @@ func handleLoginSuccess(resp *TTRResponse, statusLabel *widget.Label) {
 
 	// Now we're ready to try and play
 	go func() {
-		err := <- done
+		err := <-done
 		binary := getBinaryName()
-		installDir, err := patcher.GetInstallDirByOS(); if err != nil {
+		installDir, err := patcher.GetInstallDirByOS()
+		if err != nil {
 			log.Error().
 				Err(err).
 				Msg("Failed to get install directory when launching game")
@@ -195,13 +167,13 @@ func handleLoginSuccess(resp *TTRResponse, statusLabel *widget.Label) {
 		ttr.Env = append(os.Environ(),
 			gameServerEnv,
 			playerCookie)
-		statusLabel.SetText(fmt.Sprintf("Have fun in Toontown!"))
+		// statusLabel.SetText(fmt.Sprintf("Have fun in Toontown!"))
 		ttr.Stdout = os.Stdout
 		ttr.Stderr = os.Stderr
 
-
 		log.Info().Msg("Launching TTR instance...")
-		err = ttr.Start(); if err != nil {
+		err = ttr.Start()
+		if err != nil {
 			log.Error().Err(err).Msg("Failed to Launch TTR")
 		}
 	}()

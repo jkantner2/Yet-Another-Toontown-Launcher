@@ -2,26 +2,46 @@ package main
 
 import (
 	"YATL/lib/logger"
-	"YATL/ui"
+	"YATL/services"
+
+	"embed"
 	"fmt"
 
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
-	"YATL/lib/multi"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
+//go:embed all:frontend/dist
+var assets embed.FS
+
 func main() {
-	multi.Go_select_window()
-	err := logger.InitLogger()
-	if err != nil {
-		fmt.Println("Could not init Logger: ", err)
+	logErr := logger.InitLogger()
+	if logErr != nil {
+		fmt.Println("Could not init Logger: ", logErr)
 	}
+	// Create an instance of your app structure
+	app := application.New(application.Options{
+		Name: "YATL",
+		Description: "Yet Another Toontown Launcher",
+		Services: []application.Service{
+			application.NewService(&services.LoginService{}),
+		},
+		Assets: application.AssetOptions{
+			Handler: application.AssetFileServerFS(assets),
+		},
+	})
 
-	YATLApp := app.New()
-	YATLWindow := YATLApp.NewWindow("Yet Another Toontown Launcher")
-	content := ui.BuildUI(YATLWindow)
+	app.Window.NewWithOptions(application.WebviewWindowOptions{
+		Title: "YATL",
+		URL: "/",
+		Frameless: true,
+		DisableResize: true,
+		Width: 1280,
+		Height: 720,
+	})
 
-	YATLWindow.SetContent(content)
-	YATLWindow.Resize(fyne.NewSize(800,600))
-	YATLWindow.ShowAndRun()
+	err := app.Run()
+
+	if err != nil {
+		fmt.Println(err)
+	}
 }
