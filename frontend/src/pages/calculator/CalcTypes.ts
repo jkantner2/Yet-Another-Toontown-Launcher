@@ -3,20 +3,27 @@ export interface Status {
   location: Location;
 }
 
+export interface CogStatusMenuProps {
+  checkedStatuses: Record<StatusName, boolean>
+  onStatusCheck: (id: StatusName) => void;
+}
+
 export enum StatusName {
-  FiredUp,
-  MarketResearch,
+  FiredUp = "FiredUp",
+  MarketResearch = "MarketResearch",
+  ForemanDefence = "ForemanDefence",
 }
 
 export enum Location {
-  FieldOffice,
-  Foreman,
-  Auditor,
-  OldLady,
-  GolfLady,
+  FieldOffice = "FieldOffice",
+  Foreman = "Foreman",
+  Auditor = "Auditor",
+  OldLady = "OldLady",
+  GolfLady = "GolfLady",
 }
 
 export const statuses: Array<Status> = [
   { status: StatusName.FiredUp, location: Location.FieldOffice },
   { status: StatusName.MarketResearch, location: Location.FieldOffice },
+  { status: StatusName.ForemanDefence, location: Location.Foreman },
 ];

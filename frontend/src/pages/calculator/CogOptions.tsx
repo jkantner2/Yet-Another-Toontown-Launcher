@@ -20,9 +20,6 @@ const CogOptions: React.FC = () => {
           ))}
         </select>
       </div>
-      <button className="StatusButton" type="button">
-        Status
-      </button>
     </>
   );
 };
