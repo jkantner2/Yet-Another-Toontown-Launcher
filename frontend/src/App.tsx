@@ -13,8 +13,10 @@ const SettingsPage: React.FC = () => <div>Settings Page (coming soon)</div>;
 enum SidebarItems {
   Launch = "Launch",
   Calculator = "Calculator",
+  MultiToon = "MultiToon",
   ToonHQ = "ToonHQ",
   Suits = "Suits",
+  Fishing = "Fishing",
   ResourcePacks = "ResourcePacks",
   Settings = "Settings",
 }
@@ -30,10 +32,14 @@ const App: React.FC = () => {
         return <LoginPage />;
       case SidebarItems.Calculator:
         return <Calculator />;
+      case SidebarItems.MultiToon:
+        return <ComingSoonPage title="MultiToon Page" />;
       case SidebarItems.ToonHQ:
         return <ToonHQPage />;
       case SidebarItems.Suits:
         return <ComingSoonPage title="Cog Suits" />;
+      case SidebarItems.Fishing:
+        return <ComingSoonPage title="Fishing Page" />;
       case SidebarItems.ResourcePacks:
         return <ComingSoonPage title="Resource Packs" />;
       case SidebarItems.Settings:
@@ -48,7 +54,7 @@ const App: React.FC = () => {
       <AppShell
         padding="md"
         navbar={{
-          width: { base: 150, lg: 150 },
+          width: { base: 150, md: 150, lg: 150 },
           breakpoint: "sm",
         }}
       >

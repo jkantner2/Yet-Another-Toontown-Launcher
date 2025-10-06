@@ -3,6 +3,8 @@ package main
 import (
 	"YATL/lib/logger"
 	"YATL/services"
+	"math/rand/v2"
+	"os"
 
 	"embed"
 	"fmt"
@@ -14,10 +16,20 @@ import (
 var assets embed.FS
 
 func main() {
+	// Init logger
 	logErr := logger.InitLogger()
 	if logErr != nil {
 		fmt.Println("Could not init Logger: ", logErr)
 	}
+
+	// Generate random auth header for session
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	AuthHeader := make([]byte, len(letters))
+	for i := range letters {
+		AuthHeader[i] = letters[rand.IntN(len(letters))]
+	}
+	os.Setenv("TTR_AUTH_HEADER", string(AuthHeader))
+
 	// Create an instance of your app structure
 	app := application.New(application.Options{
 		Name: "YATL",

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Login } from "../../../bindings/YATL/services/loginservice";
+import { Container, TextInput } from "@mantine/core";
+import { Button } from "@mantine/core";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -14,23 +16,30 @@ const LoginPage: React.FC = () => {
   return (
     <div>
       <h2>Login</h2>
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button
-        type="button"
-        onClick={handlePlay}>Play
-      </button>
-      <p>{message}</p>
+      <Container
+        w={300}
+      >
+        <TextInput
+          value={username}
+          placeholder="Username"
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <TextInput
+          type="password"
+          value={password}
+          placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <Button
+          onClick={handlePlay}
+          variant="light"
+        >
+          Play
+        </Button>
+
+        <p>{message}</p>
+      </Container>
     </div>
   );
 };
