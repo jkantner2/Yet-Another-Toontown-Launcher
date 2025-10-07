@@ -2,12 +2,11 @@ import React, { useState } from "react";
 import LoginPage from "./pages/login/Login";
 import ToonHQPage from "./pages/toonhq/Toonhq";
 import Calculator from "./pages/calculator/CalculatorPage.tsx";
-import { AppShell } from "@mantine/core";
+import { AppShell, NavLink } from "@mantine/core";
 
 const ComingSoonPage: React.FC<{ title: string }> = ({ title }) => (
   <div>{title} Page (coming soon)</div>
 );
-const SettingsPage: React.FC = () => <div>Settings Page (coming soon)</div>;
 
 // Sidebar items enum
 enum SidebarItems {
@@ -17,7 +16,7 @@ enum SidebarItems {
   ToonHQ = "ToonHQ",
   Suits = "Suits",
   Fishing = "Fishing",
-  ResourcePacks = "ResourcePacks",
+  ResourcePks = "ResourcePacks",
   Settings = "Settings",
 }
 
@@ -25,6 +24,7 @@ const App: React.FC = () => {
   const [selectedPage, setSelectedPage] = useState<SidebarItems>(
     SidebarItems.Launch,
   );
+  const [active, setActive] = useState(0);
 
   const renderPage = (): JSX.Element => {
     switch (selectedPage) {
@@ -40,10 +40,10 @@ const App: React.FC = () => {
         return <ComingSoonPage title="Cog Suits" />;
       case SidebarItems.Fishing:
         return <ComingSoonPage title="Fishing Page" />;
-      case SidebarItems.ResourcePacks:
+      case SidebarItems.ResourcePks:
         return <ComingSoonPage title="Resource Packs" />;
       case SidebarItems.Settings:
-        return <SettingsPage />;
+        return <ComingSoonPage title="Settings" />;
       default:
         return <div>Unknown Page</div>;
     }
@@ -59,15 +59,17 @@ const App: React.FC = () => {
         }}
       >
         <AppShell.Navbar p="md">
-          {Object.keys(SidebarItems).map((item) => (
-            <div
+          {Object.keys(SidebarItems).map((item, index) => (
+            <NavLink
               key={item}
-              onClick={() =>
+              label={item}
+              active={index === active}
+              onClick={() => {
                 setSelectedPage(item as SidebarItems)
-              }
+                setActive(index)
+              }}
             >
-              {item}
-            </div>
+            </NavLink>
           ))}
         </AppShell.Navbar>
         <AppShell.Main>

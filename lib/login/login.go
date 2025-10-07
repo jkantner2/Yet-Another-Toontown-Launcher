@@ -37,16 +37,21 @@ type TTRResponse struct {
 // ENTRY
 //
 //	and Patch Manifest returned
-func HandleLogin(username string, password string) {
+func HandleLogin(username string) int {
+	password, err := GetPasswordFromUsername(username)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get username from password")
+		return -1
+	}
 	resp, err := loginTTR(username, password)
 	if err != nil {
 		fmt.Println("Error Logging In: ", err)
-		return
+		return -1
 	}
 
 	switch resp.Success {
 	case "true": // Full Seccess -> Get tokens and Download patch manifest
-		handleLoginSuccess(resp)
+		return handleLoginSuccess(resp)
 
 	case "delayed": // In Queue -> Poll until full success
 		_ = resp.QueueToken
@@ -60,6 +65,7 @@ func HandleLogin(username string, password string) {
 
 	default: // Should never see this
 	}
+	return -1
 }
 
 func loginTTR(username string, password string) (*TTRResponse, error) {
@@ -95,7 +101,7 @@ func loginTTR(username string, password string) (*TTRResponse, error) {
 	return &ttrResp, nil
 }
 
-func handleLoginSuccess(resp *TTRResponse) {
+func handleLoginSuccess(resp *TTRResponse) int {
 	// Set necessary env
 	// os.Setenv("TTR_GAMESERVER", resp.Gameserver)
 	// os.Setenv("TTR_PLAYERCOOKIE", resp.Cookie)
@@ -129,7 +135,7 @@ func handleLoginSuccess(resp *TTRResponse) {
 	manifestContent, err := downloadPatchManifest(patchURL)
 	if err != nil {
 		log.Error().Str("Patch manifest URL", patchURL).Err(err).Msg("Failed to download patch manifest")
-		return
+		return -1
 	}
 
 	log.Info().Str("Patch Manifest", manifestContent).Msg("Successfully downloaded patch manifest")
@@ -138,6 +144,8 @@ func handleLoginSuccess(resp *TTRResponse) {
 
 	// Download and install ttr in a seperate goroutine
 	done := make(chan error, 1)
+	pidChan := make(chan int)
+	errChan := make(chan error)
 
 	go func() {
 		err := patcher.DownloadAndInstallManifestFiles(mirror, []byte(manifestContent))
@@ -153,6 +161,7 @@ func handleLoginSuccess(resp *TTRResponse) {
 			log.Error().
 				Err(err).
 				Msg("Failed to get install directory when launching game")
+			errChan <- fmt.Errorf("Failed to launch ttr")
 			return
 		}
 
@@ -175,8 +184,18 @@ func handleLoginSuccess(resp *TTRResponse) {
 		err = ttr.Start()
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to Launch TTR")
+			errChan <- fmt.Errorf("Failed to launch TTR")
 		}
+		pidChan <- ttr.Process.Pid
 	}()
+
+	select {
+	case pid := <-pidChan:
+		return pid
+	case err := <-errChan:
+		log.Error().Err(err).Msg("Failed To launch TTR (at select)")
+		return -1
+	}
 }
 
 // Download manifest. Return error or manifest in string

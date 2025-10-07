@@ -1,11 +1,27 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface Status {
   status: StatusName;
   location: Location;
 }
 
+export interface Gag {
+  GagType: string;
+  GagName: string;
+  Damage: number;
+  OrgDamage: number;
+  Accuracy: number;
+  Stun: number;
+  Shorthand: string;
+}
+
 export interface CogStatusMenuProps {
   checkedStatuses: Record<StatusName, boolean>
   onStatusCheck: (id: StatusName) => void;
+}
+
+export interface CogOptionsProps {
+  setCogLevel: Dispatch<SetStateAction<number | string>>;
 }
 
 export enum StatusName {

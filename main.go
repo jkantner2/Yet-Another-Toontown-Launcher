@@ -1,6 +1,7 @@
 package main
 
 import (
+	"YATL/lib/config"
 	"YATL/lib/logger"
 	"YATL/services"
 	"math/rand/v2"
@@ -9,6 +10,7 @@ import (
 	"embed"
 	"fmt"
 
+	"github.com/rs/zerolog/log"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
@@ -20,6 +22,12 @@ func main() {
 	logErr := logger.InitLogger()
 	if logErr != nil {
 		fmt.Println("Could not init Logger: ", logErr)
+	}
+
+	// Init Config
+	configErr := config.InitViper()
+	if configErr != nil {
+		log.Error().Err(configErr).Msg("Could not init viper")
 	}
 
 	// Generate random auth header for session
