@@ -1,12 +1,7 @@
-import React, { useEffect, useState } from "react";
-import {
-  GetAllAccounts,
-  Login,
-  SaveAccount,
-} from "../../../bindings/YATL/services/loginservice";
+import React, { useState } from "react";
+import { SaveAccount } from "../../../bindings/YATL/services/loginservice";
 import {
   Card,
-  Container,
   Drawer,
   Group,
   Image,
@@ -20,27 +15,16 @@ import {
 import { Button } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useDisclosure } from "@mantine/hooks";
+import { LoginProps } from "./LoginTypes";
 
-const LoginPage: React.FC = () => {
+const LoginPage: React.FC<LoginProps> = ({
+  handlePlay,
+  processIDs,
+  accounts,
+}) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [processIDs, setProcessIDs] = useState<Record<string, number>>({});
-  const [accounts, setAccounts] = useState<string[]>([]);
   const [opened, { open, close }] = useDisclosure(false);
-
-  useEffect(() => {
-    const fetchAccounts = async () => {
-      const allAccounts = await GetAllAccounts();
-      setAccounts(allAccounts);
-
-      const initialPIDs: Record<string, number> = {};
-      allAccounts.forEach((acc) => {
-        initialPIDs[acc] = -1;
-      });
-      setProcessIDs(initialPIDs);
-    };
-    fetchAccounts();
-  }, []);
 
   const handleNewAccount = async () => {
     await SaveAccount(username, password);
@@ -50,15 +34,7 @@ const LoginPage: React.FC = () => {
     });
   };
 
-  const handlePlay = async (username: string) => {
-    // returns PID
-    const pid = await Login(username);
-    setProcessIDs((prev) => ({
-      ...prev,
-      [username]: pid,
-    }));
-  };
-
+  // TODO: Add button for restart
   return (
     <>
       <Tabs>
@@ -74,12 +50,8 @@ const LoginPage: React.FC = () => {
           </Button>
         </Tabs.List>
       </Tabs>
+      <Space h={20} />
       <div>
-        <Container
-          w={300}
-          mt="lg"
-        >
-        </Container>
         <SimpleGrid cols={3}>
           {accounts.map((account) => (
             <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -112,28 +84,36 @@ const LoginPage: React.FC = () => {
           ))}
         </SimpleGrid>
       </div>
-      <Drawer opened={opened} onClose={close} title="Add Account" position="right" offset={8} radius="md" size={300}>
+      <Drawer
+        opened={opened}
+        onClose={close}
+        title="Add Account"
+        position="right"
+        offset={8}
+        radius="md"
+        size={300}
+      >
         <Stack>
-        <TextInput
-          value={username}
-          placeholder="Username"
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <TextInput
-          type="password"
-          value={password}
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <TextInput
+            value={username}
+            placeholder="Username"
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <TextInput
+            type="password"
+            value={password}
+            placeholder="Password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <Button
-          onClick={() => {
-            handleNewAccount();
-          }}
-          variant="light"
-        >
-          Submit
-        </Button>
+          <Button
+            onClick={() => {
+              handleNewAccount();
+            }}
+            variant="light"
+          >
+            Submit
+          </Button>
         </Stack>
       </Drawer>
     </>

@@ -207,7 +207,7 @@ func DownloadAndInstallManifestFiles(baseURL string, rawManifest []byte) error {
 				Str("Patch URL", info.DL).
 				Err(err).
 				Msg("Failed to download file")
-			// TODO Retry download
+			// TODO: Retry download
 		}
 		filesToInstall[patch] = patch
 	}

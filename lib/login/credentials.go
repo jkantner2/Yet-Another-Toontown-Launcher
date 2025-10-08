@@ -43,7 +43,7 @@ func GetPasswordFromUsername(username string) (string, error) {
 	return pass, nil
 }
 
-// TODO Remove account from json alonside keyring
+// TODO: Remove account from json alonside keyring
 func RemoveAccount(username string) error {
 	err := keyring.Delete(service, username)
 	if err != nil {

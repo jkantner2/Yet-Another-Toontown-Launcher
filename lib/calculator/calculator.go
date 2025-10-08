@@ -73,7 +73,7 @@ const (
 var tgtDEF int
 
 func CalculateDamage(isLured bool, trackEXP int, attacks []Attack, cog Cog) ([]Attack, BattleState) {
-	// TODO implement TTK and Acc check (95%) for lure turn
+	// TODO: implement TTK and Acc check (95%) for lure turn
 
 	// Handle things decided in UI first
 	// trackEXP - default to 70

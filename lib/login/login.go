@@ -55,13 +55,13 @@ func HandleLogin(username string) int {
 
 	case "delayed": // In Queue -> Poll until full success
 		_ = resp.QueueToken
-		// TODO
+	// TODO: Add queue support
 
 	case "partial": // 2fa -> Toon factor authenicate until full success
-		// TODO
+	// TODO: Add 2fa Supper
 
 	case "false": // Failure -> Give up ig
-		// TODO
+	// TODO: Add failure support
 
 	default: // Should never see this
 	}

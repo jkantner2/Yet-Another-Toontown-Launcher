@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LoginPage from "./pages/login/Login";
 import ToonHQPage from "./pages/toonhq/Toonhq";
 import Calculator from "./pages/calculator/CalculatorPage.tsx";
 import { AppShell, NavLink } from "@mantine/core";
+import {
+  GetAllAccounts,
+  Login,
+} from "../bindings/YATL/services/loginservice.ts";
 
 const ComingSoonPage: React.FC<{ title: string }> = ({ title }) => (
   <div>{title} Page (coming soon)</div>
@@ -25,11 +29,43 @@ const App: React.FC = () => {
     SidebarItems.Launch,
   );
   const [active, setActive] = useState(0);
+  const [processIDs, setProcessIDs] = useState<Record<string, number>>({});
+  const [accounts, setAccounts] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      const allAccounts = await GetAllAccounts();
+      setAccounts(allAccounts);
+
+      const initialPIDs: Record<string, number> = {};
+      allAccounts.forEach((acc) => {
+        initialPIDs[acc] = -1;
+      });
+      setProcessIDs(initialPIDs);
+    };
+    fetchAccounts();
+  }, []);
+
+  // TODO: Add PID heartbeaT
+  const handlePlay = async (username: string) => {
+    // returns PID
+    const pid = await Login(username);
+    setProcessIDs((prev) => ({
+      ...prev,
+      [username]: pid,
+    }));
+  };
 
   const renderPage = (): JSX.Element => {
     switch (selectedPage) {
       case SidebarItems.Launch:
-        return <LoginPage />;
+        return (
+          <LoginPage
+            handlePlay={handlePlay}
+            processIDs={processIDs}
+            accounts={accounts}
+          />
+        );
       case SidebarItems.Calculator:
         return <Calculator />;
       case SidebarItems.MultiToon:
@@ -65,8 +101,8 @@ const App: React.FC = () => {
               label={item}
               active={index === active}
               onClick={() => {
-                setSelectedPage(item as SidebarItems)
-                setActive(index)
+                setSelectedPage(item as SidebarItems);
+                setActive(index);
               }}
             >
             </NavLink>
