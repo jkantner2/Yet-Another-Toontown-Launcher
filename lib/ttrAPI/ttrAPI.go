@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 type ttrApiCall string
@@ -49,7 +50,9 @@ func CallLocalApi(port int, call ttrApiCall) ([]byte, error) {
 		return nil, err
 	}
 
-	req.Host = fmt.Sprintf("localhost:%d", port)
+	req.Header.Add("Authorization", os.Getenv("TTR_AUTH_HEADER"))
+	req.Header.Add("Host", fmt.Sprintf("localhost:%d", port))
+	req.Header.Add("User-Agent", "Yet Another Toontown Launcher")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
