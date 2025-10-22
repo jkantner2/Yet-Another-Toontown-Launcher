@@ -44,6 +44,7 @@ func main() {
 		Description: "Yet Another Toontown Launcher",
 		Services: []application.Service{
 			application.NewService(&services.LoginService{}),
+			application.NewService(&services.CalculatorService{}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

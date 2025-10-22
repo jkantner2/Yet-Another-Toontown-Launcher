@@ -1,12 +1,18 @@
 import React, { useState } from "react";
-import { StatusName } from "./CalcTypes.ts";
+import { GagAttack, StatusName } from "./CalcTypes.ts";
 import CogStatusMenu from "./CogStatusMenu.tsx";
-import { Button, Drawer, NumberInput } from "@mantine/core";
+import { Box, Button, Drawer, NumberInput, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import GagMenu from "./GagMenu.tsx";
+import { CalculateAttacks } from "../../../bindings/YATL/services/calculatorservice.ts"
+import { AttackAnalysis } from "../../../bindings/YATL/lib/calculator/models.ts";
 
 const Calculator: React.FC = () => {
   const [opened, { open, close }] = useDisclosure(false);
-  const [_cogLevel, setCogLevel] = useState<string | number>(12);
+  const [cogLevel, setCogLevel] = useState<string | number>(12);
+  const [selectedGags, setSelectedGags] = useState<Array<GagAttack>>([]);
+  const [analyzedAttacks, setAnalyzedAttacks] = useState<Array<AttackAnalysis>>([]);
+
   const [checkedStatuses, setCheckedStatuses] = useState<
     Record<StatusName, boolean>
   >(() => {
@@ -24,11 +30,92 @@ const Calculator: React.FC = () => {
     }));
   };
 
+  const handleAnalyzeAttacks = (attacks: Array<AttackAnalysis>) => {
+    setAnalyzedAttacks(() => [...attacks])
+  }
+
+  const handleSelectedGag = (gag: GagAttack) => {
+    if (selectedGags.length >= 4) {
+      clearSelectedGag()
+    }
+
+    setSelectedGags((prev) => [...prev, gag])
+  };
+
+  const clearSelectedGag = () => {
+    setSelectedGags(() => [])
+  }
+
+// func (g *CalculatorService) CalculateAttacks(gags[] calculator.GagAttack, isLured bool, cog calculator.Cog) []calculator.AttackAnalysis {
+/*
+export interface Cog {
+  health: number;
+  level: number;
+  tier: number;
+  cheats: string[];
+}
+
+  */
+  const handleCalcGags = async () => {
+    const result = await CalculateAttacks(selectedGags, false, {level: cogLevel})
+
+    handleAnalyzeAttacks(result)
+  }
+
+  // TODO make images for selected gag display
   return (
     <>
-      <Button variant="default" onClick={open}>
+      <Box p='lg'>
+        <GagMenu
+          onSelectedGags={handleSelectedGag}
+        />
+      </Box>
+
+      <Button variant="default"
+        onClick={open}
+        onContextMenu={(e) => e.preventDefault()}
+        m='sm'
+      >
         Open Drawer
       </Button>
+
+      <Button variant="default"
+        onClick={clearSelectedGag}
+        onContextMenu={(e) => e.preventDefault()}
+        m='sm'
+      >
+        Clear Gags
+      </Button>
+
+      <Button variant="default"
+        onClick={handleCalcGags}
+        onContextMenu={(e) => e.preventDefault()}
+        m='sm'
+      >
+        Calculate
+      </Button>
+
+
+      <Box>
+        {selectedGags.map(gag => {
+          return (
+          <Text>
+            {`Gag: ${gag.Gag.GagName} Org: ${gag.IsOrg}`}
+          </Text>
+          )
+        })}
+      </Box>
+
+      <>
+          {analyzedAttacks.map(atk => {
+            return(
+              <Box>
+                <div>{`${atk.Gag.GagName}`}</div>
+              </Box>
+            )
+          })}
+      </>
+
       <Drawer
         opened={opened}
         onClose={close}

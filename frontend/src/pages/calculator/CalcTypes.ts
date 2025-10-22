@@ -5,6 +5,11 @@ export interface Status {
   location: Location;
 }
 
+export interface GagAttack {
+  Gag: Gag
+  IsOrg: boolean
+}
+
 export interface Gag {
   GagType: string;
   GagName: string;
@@ -13,11 +18,23 @@ export interface Gag {
   Accuracy: number;
   Stun: number;
   Shorthand: string;
+  Resource: string;
+}
+
+export interface Cog {
+  health: number;
+  level: number;
+  tier: number;
+  cheats: string[];
 }
 
 export interface CogStatusMenuProps {
   checkedStatuses: Record<StatusName, boolean>
   onStatusCheck: (id: StatusName) => void;
+}
+
+export interface GagMenuProps {
+  onSelectedGags: (gag: GagAttack) => void;
 }
 
 export interface CogOptionsProps {

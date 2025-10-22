@@ -1,9 +1,8 @@
 package calculator
 
 import (
-	"encoding/json"
 	"math"
-	"os"
+	"sort"
 )
 
 // Special Cases:
@@ -18,6 +17,12 @@ type Gag struct {
 	Accuracy  int    `json:"Accuracy"`
 	Stun      int    `json:"Stun"`
 	Shorthand string `json:"Shorthand"`
+	Resource  string `json:"Resource"`
+}
+
+type GagAttack struct {
+	Gag Gag
+	IsOrg bool
 }
 
 type Cog struct {
@@ -33,14 +38,14 @@ type BattleState struct {
 	timeToKill  float64
 }
 
-type Attack struct {
-	gag         Gag
-	isOrg       bool
-	baseDamage  int
-	totalDamage int
-	lureDamage  int
-	comboDamage int
-	finalAcc    int
+type AttackAnalysis struct {
+	Gag         Gag
+	IsOrg       bool
+	BaseDamage  int
+	TotalDamage int
+	LureDamage  int
+	ComboDamage int
+	FinalAcc    int
 }
 
 // Dict for holding gags
@@ -69,11 +74,25 @@ const (
 	DefLevel14    int = -65
 )
 
-// atkAcc = propAcc + trackExp + tgtDef + bonus
-var tgtDEF int
+var gagOrder = map[string]int{
+	"Toon-Up": 0,
+	"Trap": 1,
+	"Lure": 2,
+	"Sound": 3,
+	"Throw": 4,
+	"Squirt": 5,
+	"Drop": 6,
+}
 
-func CalculateDamage(isLured bool, trackEXP int, attacks []Attack, cog Cog) ([]Attack, BattleState) {
+
+// atkAcc = propAcc + trackExp + tgtDef + bonus
+func CalculateDamage(isLured bool, trackEXP int, attacks []AttackAnalysis, cog Cog) ([]AttackAnalysis) {
 	// TODO: implement TTK and Acc check (95%) for lure turn
+
+	// Sort input gags
+	sort.Slice(attacks, func(i, j int) bool {
+		return gagOrder[attacks[i].Gag.GagType] < gagOrder[attacks[j].Gag.GagType]
+	})
 
 	// Handle things decided in UI first
 	// trackEXP - default to 70
@@ -90,13 +109,13 @@ func CalculateDamage(isLured bool, trackEXP int, attacks []Attack, cog Cog) ([]A
 	var gagDamage int
 	var isTrapPlaced bool
 	// Go through each gag individually to calc stun bonus
-	for _, attack := range attacks {
+	for i := range attacks {
 		// determine chance for current gag to hit
 		if isLured == false {
 			// TODO Need to check for trap placement on group lure
-			gagAcc = clampMax(getGagAccuracy(attack, isTrapPlaced)+trackEXP+tgtDEF+stun, 95)
+			gagAcc = clampMax(getGagAccuracy(attacks[i], isTrapPlaced)+trackEXP+tgtDEF+stun, 95)
 		} else {
-			if attack.gag.GagType == "Drop" {
+			if attacks[i].Gag.GagType == "Drop" {
 				gagAcc = 0
 			} else {
 				gagAcc = 100
@@ -104,11 +123,11 @@ func CalculateDamage(isLured bool, trackEXP int, attacks []Attack, cog Cog) ([]A
 		}
 
 		// Update info for UI to display
-		attack.finalAcc = gagAcc
+		attacks[i].FinalAcc = gagAcc
 		totalAcc *= gagAcc
 
 		// Apply stun for next gags
-		switch attack.gag.GagType {
+		switch attacks[i].Gag.GagType {
 		case "Trap":
 			isTrapPlaced = true
 		case "Lure":
@@ -116,15 +135,15 @@ func CalculateDamage(isLured bool, trackEXP int, attacks []Attack, cog Cog) ([]A
 				stun += GagDict["TNT"].Stun
 			}
 		default:
-			stun += attack.gag.Stun
+			stun += attacks[i].Gag.Stun
 		}
 
-		gagDamage = getGagDamage(attack, isLured)
+		gagDamage = getGagDamage(attacks[i], isLured)
 
-		attack.baseDamage = gagDamage
+		attacks[i].BaseDamage = gagDamage
 	}
 
-	return []Attack{}, BattleState{}
+	return attacks
 }
 
 // TODO clamp to 0 too
@@ -135,64 +154,44 @@ func clampMax(x int, max int) int {
 	return x
 }
 
-func getGagDamage(attack Attack, isLured bool) int {
+func getGagDamage(attack AttackAnalysis, isLured bool) int {
 	var gagDamage int
 	// Calculate damage for current gag
-	if attack.gag.GagType == "Lure" {
+	if attack.Gag.GagType == "Lure" {
 		gagDamage = 0
-		isLured = true
 	} else {
 		if isLured {
-			switch attack.gag.GagType {
+			switch attack.Gag.GagType {
 			case "Drop":
 				gagDamage = 0
 			case "Trap":
-				gagDamage = attack.gag.Damage
+				gagDamage = attack.Gag.Damage
 			default:
-				gagDamage = int(math.Ceil(float64(attack.gag.Damage) * 1.5))
+				gagDamage = int(math.Ceil(float64(attack.Gag.Damage) * 1.5))
 			}
 		} else {
-			gagDamage = attack.gag.Damage
+			gagDamage = attack.Gag.Damage
 		}
 	}
-
 	return gagDamage
 }
 
-func getGagAccuracy(attack Attack, isTrapPlaced bool) int {
+func getGagAccuracy(attack AttackAnalysis, isTrapPlaced bool) int {
 	var gagAcc int
-	if attack.gag.GagType == "lure" {
-		if attack.isOrg {
-			gagAcc = attack.gag.OrgDamage
+	if attack.Gag.GagType == "lure" {
+		if attack.IsOrg {
+			gagAcc = attack.Gag.OrgDamage
 		} else {
-			gagAcc = attack.gag.Damage
+			gagAcc = attack.Gag.Damage
 		}
 		if isTrapPlaced {
 			gagAcc += 10
 		}
 	} else {
-		gagAcc = attack.gag.Accuracy
+		gagAcc = attack.Gag.Accuracy
 	}
 
 	return gagAcc
-}
-
-// Run on launch so we don't have to constantly check json file
-func LoadGags(filename string) (GagDictionary, error) {
-	file, err := os.Open("data/gags.json")
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	var gags []Gag
-	err = json.NewDecoder(file).Decode(&gags)
-
-	for _, gag := range gags {
-		GagDict[gag.GagName] = gag
-	}
-
-	return GagDict, err
 }
 
 // Believe me I wish this was a formula too
@@ -232,6 +231,8 @@ func getTgtDEF(level int, tier int) int {
 	case 12:
 		tgtDEF = DefLevel12
 	case 13:
+		tgtDEF = DefLevel13
+	case 14:
 		tgtDEF = DefLevel13
 	default:
 		tgtDEF = DefLevel14

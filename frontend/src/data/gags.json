@@ -7,7 +7,7 @@
     "Accuracy": 70,
     "Stun": 0,
     "Shorthand": "Feather",
-    "resource": "source/inventory_feather.png"
+    "Resource": "source/inventory_feather.png"
   },
   {
     "GagType": "Toon-Up",
@@ -17,7 +17,7 @@
     "Accuracy": 70,
     "Stun": 0,
     "Shorthand": "Megaphone",
-    "resource": "source/inventory_megaphone.png"
+    "Resource": "source/inventory_megaphone.png"
   },
   {
     "GagType": "Toon-Up",
@@ -27,7 +27,7 @@
     "Accuracy": 70,
     "Stun": 0,
     "Shorthand": "Lipstick",
-    "resource": "source/inventory_lipstick.png"
+    "Resource": "source/inventory_lipstick.png"
   },
   {
     "GagType": "Toon-Up",
@@ -37,7 +37,7 @@
     "Accuracy": 70,
     "Stun": 0,
     "Shorthand": "Cane",
-    "resource": "source/inventory_bamboo_cane.png"
+    "Resource": "source/inventory_bamboo_cane.png"
   },
   {
     "GagType": "Toon-Up",
@@ -47,7 +47,7 @@
     "Accuracy": 70,
     "Stun": 0,
     "Shorthand": "Dust",
-    "resource": "source/inventory_pixiedust.png"
+    "Resource": "source/inventory_pixiedust.png"
   },
   {
     "GagType": "Toon-Up",
@@ -57,7 +57,7 @@
     "Accuracy": 70,
     "Stun": 0,
     "Shorthand": "Juggles",
-    "resource": "source/inventory_juggling_cubes.png"
+    "Resource": "source/inventory_juggling_cubes.png"
   },
   {
     "GagType": "Toon-Up",
@@ -67,7 +67,7 @@
     "Accuracy": 95,
     "Stun": 0,
     "Shorthand": "Dive",
-    "resource": "source/inventory_ladder.png"
+    "Resource": "source/inventory_ladder.png"
   },
   {
     "GagType": "Trap",
@@ -77,7 +77,7 @@
     "Accuracy": 0,
     "Stun": 50,
     "Shorthand": "Banana",
-    "resource": "source/inventory_bannana_peel.png"
+    "Resource": "source/inventory_bannana_peel.png"
   },
   {
     "GagType": "Trap",
@@ -87,7 +87,7 @@
     "Accuracy": 0,
     "Stun": 50,
     "Shorthand": "Rake",
-    "resource": "source/inventory_rake.png"
+    "Resource": "source/inventory_rake.png"
   },
   {
     "GagType": "Trap",
@@ -97,7 +97,7 @@
     "Accuracy": 0,
     "Stun": 50,
     "Shorthand": "Marble",
-    "resource": "source/inventory_marbles.png"
+    "Resource": "source/inventory_marbles.png"
   },
   {
     "GagType": "Trap",
@@ -107,7 +107,7 @@
     "Accuracy": 0,
     "Stun": 50,
     "Shorthand": "Quicksand",
-    "resource": "source/inventory_quicksand_icon.png"
+    "Resource": "source/inventory_quicksand_icon.png"
   },
   {
     "GagType": "Trap",
@@ -117,7 +117,7 @@
     "Accuracy": 0,
     "Stun": 50,
     "Shorthand": "Trapdoor",
-    "resource": "source/inventory_trapdoor.png"
+    "Resource": "source/inventory_trapdoor.png"
   },
   {
     "GagType": "Trap",
@@ -127,7 +127,7 @@
     "Accuracy": 0,
     "Stun": 50,
     "Shorthand": "TNT",
-    "resource": "source/inventory_tnt.png"
+    "Resource": "source/inventory_tnt.png"
   },
   {
     "GagType": "Trap",
@@ -137,7 +137,7 @@
     "Accuracy": 0,
     "Stun": 50,
     "Shorthand": "Train",
-    "resource": "source/inventory_traintracks.png"
+    "Resource": "source/inventory_traintracks.png"
   },
   {
     "GagType": "Lure",
@@ -147,7 +147,7 @@
     "Accuracy": 0,
     "Stun": 0,
     "Shorthand": "1$ Bill",
-    "resource": "source/inventory_1dollarbill.png"
+    "Resource": "source/inventory_1dollarbill.png"
   },
   {
     "GagType": "Lure",
@@ -157,7 +157,7 @@
     "Accuracy": 0,
     "Stun": 0,
     "Shorthand": "Mini Mag",
-    "resource": "source/inventory_small_magnet.png"
+    "Resource": "source/inventory_small_magnet.png"
   },
   {
     "GagType": "Lure",
@@ -167,7 +167,7 @@
     "Accuracy": 0,
     "Stun": 0,
     "Shorthand": "$5 Bill",
-    "resource": "source/inventory_5dollarbill.png"
+    "Resource": "source/inventory_5dollarbill.png"
   },
   {
     "GagType": "Lure",
@@ -177,7 +177,7 @@
     "Accuracy": 0,
     "Stun": 0,
     "Shorthand": "Big Mag",
-    "resource": "source/inventory_big_magnet.png"
+    "Resource": "source/inventory_big_magnet.png"
   },
   {
     "GagType": "Lure",
@@ -187,7 +187,7 @@
     "Accuracy": 0,
     "Stun": 0,
     "Shorthand": "$10 Bill",
-    "resource": "source/inventory_10dollarbill.png"
+    "Resource": "source/inventory_10dollarbill.png"
   },
   {
     "GagType": "Lure",
@@ -197,7 +197,7 @@
     "Accuracy": 0,
     "Stun": 0,
     "Shorthand": "Hypnos",
-    "resource": "source/inventory_hypno_goggles.png"
+    "Resource": "source/inventory_hypno_goggles.png"
   },
   {
     "GagType": "Lure",
@@ -207,7 +207,7 @@
     "Accuracy": 0,
     "Stun": 0,
     "Shorthand": "Pres",
-    "resource": "source/inventory_screen.png"
+    "Resource": "source/inventory_screen.png"
   },
   {
     "GagType": "Sound",
@@ -217,7 +217,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Bike Horn",
-    "resource": "source/inventory_bikehorn.png"
+    "Resource": "source/inventory_bikehorn.png"
   },
   {
     "GagType": "Sound",
@@ -227,7 +227,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Whistle",
-    "resource": "source/inventory_whistle.png"
+    "Resource": "source/inventory_whistle.png"
   },
   {
     "GagType": "Sound",
@@ -237,7 +237,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Bugle",
-    "resource": "source/inventory_bugle.png"
+    "Resource": "source/inventory_bugle.png"
   },
   {
     "GagType": "Sound",
@@ -247,7 +247,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Aoogah",
-    "resource": "source/inventory_aoogah.png"
+    "Resource": "source/inventory_aoogah.png"
   },
   {
     "GagType": "Sound",
@@ -257,7 +257,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Trunk",
-    "resource": "source/inventory_elephant.png"
+    "Resource": "source/inventory_elephant.png"
   },
   {
     "GagType": "Sound",
@@ -267,7 +267,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Fog",
-    "resource": "source/inventory_fog_horn.png"
+    "Resource": "source/inventory_fog_horn.png"
   },
   {
     "GagType": "Sound",
@@ -277,7 +277,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Opera",
-    "resource": "source/inventory_opera_singer.png"
+    "Resource": "source/inventory_opera_singer.png"
   },
   {
     "GagType": "Throw",
@@ -287,7 +287,7 @@
     "Accuracy": 75,
     "Stun": 25,
     "Shorthand": "Cupcake",
-    "resource": "source/inventory_cup_cake.png"
+    "Resource": "source/inventory_cup_cake.png"
   },
   {
     "GagType": "Throw",
@@ -297,7 +297,7 @@
     "Accuracy": 75,
     "Stun": 25,
     "Shorthand": "F Slice",
-    "resource": "source/inventory_fruit_pie_slice.png"
+    "Resource": "source/inventory_fruit_pie_slice.png"
   },
   {
     "GagType": "Throw",
@@ -307,7 +307,7 @@
     "Accuracy": 75,
     "Stun": 25,
     "Shorthand": "C Slice",
-    "resource": "source/inventory_cream_pie_slice.png"
+    "Resource": "source/inventory_cream_pie_slice.png"
   },
   {
     "GagType": "Throw",
@@ -317,7 +317,7 @@
     "Accuracy": 75,
     "Stun": 25,
     "Shorthand": "Fruit",
-    "resource": "source/inventory_fruitpie.png"
+    "Resource": "source/inventory_fruitpie.png"
   },
   {
     "GagType": "Throw",
@@ -327,7 +327,7 @@
     "Accuracy": 75,
     "Stun": 25,
     "Shorthand": "Cream",
-    "resource": "source/inventory_creampie.png"
+    "Resource": "source/inventory_creampie.png"
   },
   {
     "GagType": "Throw",
@@ -337,7 +337,7 @@
     "Accuracy": 75,
     "Stun": 25,
     "Shorthand": "Bday",
-    "resource": "source/inventory_cake.png"
+    "Resource": "source/inventory_cake.png"
   },
   {
     "GagType": "Throw",
@@ -347,7 +347,7 @@
     "Accuracy": 75,
     "Stun": 25,
     "Shorthand": "Wedding",
-    "resource": "source/inventory_wedding.png"
+    "Resource": "source/inventory_wedding.png"
   },
   {
     "GagType": "Squirt",
@@ -357,7 +357,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Flower",
-    "resource": "source/inventory_squirt_flower.png"
+    "Resource": "source/inventory_squirt_flower.png"
   },
   {
     "GagType": "Squirt",
@@ -367,7 +367,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Glass",
-    "resource": "source/inventory_glass_of_water.png"
+    "Resource": "source/inventory_glass_of_water.png"
   },
   {
     "GagType": "Squirt",
@@ -377,7 +377,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Gun",
-    "resource": "source/inventory_water_gun.png"
+    "Resource": "source/inventory_water_gun.png"
   },
   {
     "GagType": "Squirt",
@@ -387,7 +387,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Seltzer",
-    "resource": "source/inventory_seltzer_bottle.png"
+    "Resource": "source/inventory_seltzer_bottle.png"
   },
   {
     "GagType": "Squirt",
@@ -397,7 +397,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Hose",
-    "resource": "source/inventory_firehose.png"
+    "Resource": "source/inventory_firehose.png"
   },
   {
     "GagType": "Squirt",
@@ -407,7 +407,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Cloud",
-    "resource": "source/inventory_storm_cloud.png"
+    "Resource": "source/inventory_storm_cloud.png"
   },
   {
     "GagType": "Squirt",
@@ -417,7 +417,7 @@
     "Accuracy": 95,
     "Stun": 25,
     "Shorthand": "Geyser",
-    "resource": "source/inventory_geyser.png"
+    "Resource": "source/inventory_geyser.png"
   },
   {
     "GagType": "Drop",
@@ -427,7 +427,7 @@
     "Accuracy": 50,
     "Stun": 25,
     "Shorthand": "Pot",
-    "resource": "source/inventory_flower_pot.png"
+    "Resource": "source/inventory_flower_pot.png"
   },
   {
     "GagType": "Drop",
@@ -437,7 +437,7 @@
     "Accuracy": 50,
     "Stun": 25,
     "Shorthand": "Sandbag",
-    "resource": "source/inventory_sandbag.png"
+    "Resource": "source/inventory_sandbag.png"
   },
   {
     "GagType": "Drop",
@@ -447,7 +447,7 @@
     "Accuracy": 50,
     "Stun": 25,
     "Shorthand": "Anvil",
-    "resource": "source/inventory_anvil.png"
+    "Resource": "source/inventory_anvil.png"
   },
   {
     "GagType": "Drop",
@@ -457,7 +457,7 @@
     "Accuracy": 50,
     "Stun": 25,
     "Shorthand": "Anvil",
-    "resource": "source/inventory_weight.png"
+    "Resource": "source/inventory_weight.png"
   },
   {
     "GagType": "Drop",
@@ -467,7 +467,7 @@
     "Accuracy": 50,
     "Stun": 25,
     "Shorthand": "Safe",
-    "resource": "source/inventory_safe_box.png"
+    "Resource": "source/inventory_safe_box.png"
   },
   {
     "GagType": "Drop",
@@ -477,7 +477,7 @@
     "Accuracy": 50,
     "Stun": 25,
     "Shorthand": "Piano",
-    "resource": "source/inventory_piano.png"
+    "Resource": "source/inventory_piano.png"
   },
   {
     "GagType": "Drop",
@@ -487,6 +487,6 @@
     "Accuracy": 50,
     "Stun": 25,
     "Shorthand": "Toontanic",
-    "resource": "source/inventory_ship.png"
+    "Resource": "source/inventory_ship.png"
   }
 ]
