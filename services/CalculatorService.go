@@ -13,5 +13,5 @@ func (g *CalculatorService) CalculateAttacks(gags[] calculator.GagAttack, isLure
 		attacks[i] = calculator.AttackAnalysis{Gag: gag.Gag, IsOrg: gag.IsOrg}
 	}
 
-	return calculator.CalculateDamage(isLured, 7, attacks, cog)
+	return calculator.IntoCalculateDamage(isLured, 7, attacks, cog)
 }

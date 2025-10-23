@@ -46,18 +46,21 @@ const Calculator: React.FC = () => {
     setSelectedGags(() => [])
   }
 
-// func (g *CalculatorService) CalculateAttacks(gags[] calculator.GagAttack, isLured bool, cog calculator.Cog) []calculator.AttackAnalysis {
-/*
-export interface Cog {
-  health: number;
-  level: number;
-  tier: number;
-  cheats: string[];
-}
+  const handleCogLevel = (lvl: string | number) => {
+    const num = Number(lvl)
+    if (!isNaN(num)) {
+      setCogLevel(num)
+    }
+  }
 
-  */
+  const addDamageNumbers = () => {
+    let totalDamage = 0
+    analyzedAttacks.forEach((atk) => totalDamage += atk.TotalDamage)
+    return totalDamage
+  }
+
   const handleCalcGags = async () => {
-    const result = await CalculateAttacks(selectedGags, false, {level: cogLevel})
+    const result = await CalculateAttacks(selectedGags, false, {level: Number(cogLevel), tier: 8, cheats: []})
 
     handleAnalyzeAttacks(result)
   }
@@ -76,7 +79,7 @@ export interface Cog {
         onContextMenu={(e) => e.preventDefault()}
         m='sm'
       >
-        Open Drawer
+        Cog Settings
       </Button>
 
       <Button variant="default"
@@ -110,10 +113,11 @@ export interface Cog {
           {analyzedAttacks.map(atk => {
             return(
               <Box>
-                <div>{`${atk.Gag.GagName}`}</div>
+                <div>{`${atk.Gag.GagName} : ${atk.TotalDamage} : ${atk.FinalAcc}`}</div>
               </Box>
             )
           })}
+        <div>{`Total damage: ${addDamageNumbers()}`}</div>
       </>
 
       <Drawer
@@ -125,10 +129,10 @@ export interface Cog {
       >
         <NumberInput
           label="Cog Level"
-          defaultValue={12}
+          defaultValue={cogLevel}
           min={1}
           max={20}
-          onChange={setCogLevel}
+          onChange={handleCogLevel}
         />
         <CogStatusMenu
           checkedStatuses={checkedStatuses}

@@ -21,21 +21,14 @@ type Gag struct {
 }
 
 type GagAttack struct {
-	Gag Gag
+	Gag   Gag
 	IsOrg bool
 }
 
 type Cog struct {
-	health int
-	level  int
-	tier   int
-	cheats []string
-}
-
-type BattleState struct {
-	cog         Cog
-	chanceToHit int
-	timeToKill  float64
+	Level  int      `json:"level"`
+	Tier   int      `json:"tier"`
+	Cheats []string `json:"cheats"`
 }
 
 type AttackAnalysis struct {
@@ -47,11 +40,6 @@ type AttackAnalysis struct {
 	ComboDamage int
 	FinalAcc    int
 }
-
-// Dict for holding gags
-type GagDictionary map[string]Gag
-
-var GagDict GagDictionary
 
 // tgtDEF integers for acc calcs
 // Tiny dictates defence for tier 1 cogs (flunkies)
@@ -74,76 +62,97 @@ const (
 	DefLevel14    int = -65
 )
 
+const TRAPSTUN int = 50
+
 var gagOrder = map[string]int{
 	"Toon-Up": 0,
-	"Trap": 1,
-	"Lure": 2,
-	"Sound": 3,
-	"Throw": 4,
-	"Squirt": 5,
-	"Drop": 6,
+	"Trap":    1,
+	"Lure":    2,
+	"Sound":   3,
+	"Throw":   4,
+	"Squirt":  5,
+	"Drop":    6,
 }
 
-
-// atkAcc = propAcc + trackExp + tgtDef + bonus
-func CalculateDamage(isLured bool, trackEXP int, attacks []AttackAnalysis, cog Cog) ([]AttackAnalysis) {
-	// TODO: implement TTK and Acc check (95%) for lure turn
-
-	// Sort input gags
+func IntoCalculateDamage(isLured bool, trackEXP int, attacks []AttackAnalysis, cog Cog) []AttackAnalysis {
+	// Sort attacks by gagOrder
 	sort.Slice(attacks, func(i, j int) bool {
 		return gagOrder[attacks[i].Gag.GagType] < gagOrder[attacks[j].Gag.GagType]
 	})
 
-	// Handle things decided in UI first
-	// trackEXP - default to 70
-	// 1 = 0, 2 = 10, ..., 7 = 60
-	trackEXP = (trackEXP * 10) - 10
+	// Set trackEXP to actual value
+	trackEXP = (trackEXP - 1) * 10
 
-	// tgtDEF - default to lvl 12, tier 8
-	tgtDEF := getTgtDEF(cog.level, cog.tier)
+	tgtDEF := getTgtDEF(cog.Level, cog.Tier)
 
-	// Bonus
-	totalAcc := 100
-	stun := 0
-	var gagAcc int
-	var gagDamage int
-	var isTrapPlaced bool
-	// Go through each gag individually to calc stun bonus
-	for i := range attacks {
-		// determine chance for current gag to hit
-		if isLured == false {
-			// TODO Need to check for trap placement on group lure
-			gagAcc = clampMax(getGagAccuracy(attacks[i], isTrapPlaced)+trackEXP+tgtDEF+stun, 95)
-		} else {
-			if attacks[i].Gag.GagType == "Drop" {
-				gagAcc = 0
-			} else {
-				gagAcc = 100
-			}
-		}
-
-		// Update info for UI to display
-		attacks[i].FinalAcc = gagAcc
-		totalAcc *= gagAcc
-
-		// Apply stun for next gags
-		switch attacks[i].Gag.GagType {
-		case "Trap":
-			isTrapPlaced = true
-		case "Lure":
-			if isTrapPlaced {
-				stun += GagDict["TNT"].Stun
-			}
-		default:
-			stun += attacks[i].Gag.Stun
-		}
-
-		gagDamage = getGagDamage(attacks[i], isLured)
-
-		attacks[i].BaseDamage = gagDamage
-	}
+	CalculateDamageRec(&attacks, 0, 0, isLured, trackEXP, tgtDEF)
 
 	return attacks
+}
+
+func CalculateDamageRec(
+	attacks *[]AttackAnalysis,
+	i int,
+	stun int,
+	isLured bool,
+	trackEXP int,
+	tgtDEF int,
+) {
+	// Base case
+	if i >= len(*attacks) {
+		return
+	}
+
+	// Get surrounding gags unless nil
+	var prevGag, nextGag *Gag
+	if i < len(*attacks)-1 {
+		nextGag = &(*attacks)[i+1].Gag
+	}
+	if i > 0 {
+		prevGag = &(*attacks)[i-1].Gag
+	}
+
+	a := &(*attacks)[i]
+
+	// Calc accuracy
+	var gagAcc int
+	switch {
+	case isLured && a.Gag.GagType == "Drop":
+		gagAcc = 0
+	case isLured || a.Gag.GagType == "Trap":
+		gagAcc = 100
+	default:
+		gagAcc = clampMax(getGagAccuracy(*a, (prevGag != nil && prevGag.GagType == "Trap"))+trackEXP+tgtDEF+stun, 95)
+	}
+
+	// Calc damage
+	base, lure, combo := getGagDamage(*a, isLured, nextGag, prevGag)
+
+	// Add info to list
+	a.BaseDamage = base
+	a.LureDamage = lure
+	a.ComboDamage = combo
+	a.TotalDamage = base + lure + combo
+	a.FinalAcc = gagAcc
+
+	// Change lure state
+	isLured = a.Gag.GagType == "Lure" && (prevGag == nil || prevGag.GagType != "Trap")
+
+	// Change stun state
+	if prevGag == nil || prevGag.GagType != a.Gag.GagType {
+		switch a.Gag.GagType {
+		case "Lure":
+			if prevGag != nil && prevGag.GagType == "Trap" {
+				stun += TRAPSTUN
+			}
+		default:
+			if a.Gag.GagType != "Trap" {
+				stun += a.Gag.Stun
+			}
+		}
+	}
+
+	CalculateDamageRec(attacks, i+1, stun, isLured, trackEXP, tgtDEF)
 }
 
 // TODO clamp to 0 too
@@ -154,44 +163,86 @@ func clampMax(x int, max int) int {
 	return x
 }
 
-func getGagDamage(attack AttackAnalysis, isLured bool) int {
-	var gagDamage int
+func getGagDamage(attack AttackAnalysis, isLured bool, nextGag *Gag, prevGag *Gag) (int, int, int) {
+	g := attack.Gag
+	gagType := g.GagType
+	gagDamage, lureDamage, comboDamage := 0, 0, 0
+	hasCombo := adjacentSameType(nextGag, prevGag, gagType)
+
 	// Calculate damage for current gag
-	if attack.Gag.GagType == "Lure" {
-		gagDamage = 0
-	} else {
-		if isLured {
-			switch attack.Gag.GagType {
-			case "Drop":
-				gagDamage = 0
-			case "Trap":
-				gagDamage = attack.Gag.Damage
-			default:
-				gagDamage = int(math.Ceil(float64(attack.Gag.Damage) * 1.5))
-			}
-		} else {
-			gagDamage = attack.Gag.Damage
-		}
+	// Lure deals no damage
+	if gagType == "Lure" {
+		return 0, 0, 0
 	}
-	return gagDamage
+
+	// Trap deals none if multiple on cog
+	if gagType == "Trap" && adjacentSameType(nextGag, prevGag, gagType) {
+		return 0, 0, 0
+	}
+
+	if gagType == "Trap" && nextGag == nil {
+		return 0, 0, 0
+	}
+
+	baseDamage := g.Damage
+	if attack.IsOrg {
+		baseDamage = g.OrgDamage
+	}
+
+	switch {
+	// Drop on lured cog
+	case isLured && gagType == "Drop":
+		gagDamage = 0
+	// Lure after trap placed
+	case gagType == "Trap" && nextGag != nil && nextGag.GagType == "Lure":
+		gagDamage = baseDamage
+	// Sound on lured cog
+	case isLured && gagType == "Sound":
+		gagDamage = baseDamage
+	// Lured on Throw, Squirt, Sound
+	case isLured:
+		lureDamage = int(math.Ceil(float64(baseDamage) * 0.5))
+		if hasCombo {
+			comboDamage = int(math.Ceil(float64(baseDamage)) * 0.2)
+		}
+		gagDamage = baseDamage
+	// No funny buisiness
+	default:
+		if hasCombo {
+			comboDamage = int(math.Ceil(float64(baseDamage)) * 0.2)
+		}
+		gagDamage = baseDamage
+	}
+
+	return gagDamage, lureDamage, comboDamage
 }
 
 func getGagAccuracy(attack AttackAnalysis, isTrapPlaced bool) int {
-	var gagAcc int
-	if attack.Gag.GagType == "lure" {
-		if attack.IsOrg {
-			gagAcc = attack.Gag.OrgDamage
-		} else {
-			gagAcc = attack.Gag.Damage
-		}
-		if isTrapPlaced {
-			gagAcc += 10
-		}
-	} else {
-		gagAcc = attack.Gag.Accuracy
+	g := attack.Gag
+
+	if g.GagType != "Lure" {
+		return g.Accuracy
 	}
 
-	return gagAcc
+	acc := g.Damage
+	if attack.IsOrg {
+		acc = g.OrgDamage
+	}
+	if isTrapPlaced {
+		acc += 10
+	}
+
+	return acc
+}
+
+func adjacentSameType(nextGag, prevGag *Gag, typ string) bool {
+	if nextGag != nil && nextGag.GagType == typ {
+		return true
+	}
+	if prevGag != nil && prevGag.GagType == typ {
+		return true
+	}
+	return false
 }
 
 // Believe me I wish this was a formula too
