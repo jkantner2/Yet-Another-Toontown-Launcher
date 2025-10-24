@@ -85,7 +85,7 @@ func IntoCalculateDamage(isLured bool, trackEXP int, attacks []AttackAnalysis, c
 
 	tgtDEF := getTgtDEF(cog.Level, cog.Tier)
 
-	CalculateDamageRec(&attacks, 0, 0, isLured, trackEXP, tgtDEF)
+	CalculateDamageRec(&attacks, 0, 0, isLured, trackEXP, tgtDEF, cog.Cheats)
 
 	return attacks
 }
@@ -97,6 +97,7 @@ func CalculateDamageRec(
 	isLured bool,
 	trackEXP int,
 	tgtDEF int,
+	cheats []string,
 ) {
 	// Base case
 	if i >= len(*attacks) {
@@ -152,7 +153,7 @@ func CalculateDamageRec(
 		}
 	}
 
-	CalculateDamageRec(attacks, i+1, stun, isLured, trackEXP, tgtDEF)
+	CalculateDamageRec(attacks, i+1, stun, isLured, trackEXP, tgtDEF, cheats)
 }
 
 // TODO clamp to 0 too
@@ -161,6 +162,19 @@ func clampMax(x int, max int) int {
 		return max
 	}
 	return x
+}
+
+func groupLure(attacks []AttackAnalysis) Gag {
+	var lureGags []Gag
+
+	for _, attack := range attacks {
+		if attack.Gag.GagType == "Lure" {
+			lureGags = append(lureGags, attack.Gag)
+		}
+	}
+
+
+	return Gag{}
 }
 
 func getGagDamage(attack AttackAnalysis, isLured bool, nextGag *Gag, prevGag *Gag) (int, int, int) {
@@ -184,6 +198,7 @@ func getGagDamage(attack AttackAnalysis, isLured bool, nextGag *Gag, prevGag *Ga
 		return 0, 0, 0
 	}
 
+	// TODO: Change base damage based on cheats here
 	baseDamage := g.Damage
 	if attack.IsOrg {
 		baseDamage = g.OrgDamage
