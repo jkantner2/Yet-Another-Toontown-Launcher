@@ -35,7 +35,6 @@ type AttackAnalysis struct {
 	Gag         Gag
 	IsOrg       bool
 	BaseDamage  float64
-	TotalDamage float64
 	LureDamage  float64
 	ComboDamage float64
 	FinalAcc    int
@@ -179,7 +178,6 @@ func CalculateDamageRec(
 	a.BaseDamage = base
 	a.LureDamage = lure
 	a.ComboDamage = combo
-	a.TotalDamage = base + lure + combo
 	a.FinalAcc = gagAcc
 
 	// Change lure state

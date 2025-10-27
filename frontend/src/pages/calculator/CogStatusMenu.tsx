@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { CogStatusMenuProps, Location, statuses } from "./CalcTypes";
+import { Box, Checkbox, Collapse, Group, Rating, Stack, Text } from "@mantine/core";
+import { IconChevronDownRight, IconChevronRight } from "@tabler/icons-react"
 
 const CogStatusMenu: React.FC<CogStatusMenuProps> = (
   { checkedStatuses, onStatusCheck },
@@ -9,7 +11,7 @@ const CogStatusMenu: React.FC<CogStatusMenuProps> = (
   >(() => {
     const initState: Record<Location, boolean> = Object.values(Location).reduce(
       (acc, loc) => {
-        acc[loc as Location] = false;
+        acc[loc as Location] = true;
         return acc;
       },
       {} as Record<Location, boolean>,
@@ -26,47 +28,47 @@ const CogStatusMenu: React.FC<CogStatusMenuProps> = (
   };
 
   return (
-    <>
-      {(Object.values(Location)).map((location) => (
-        <div className="locationGroup" key={location}>
-          <div
-            style={{
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-            onClick={() =>
-              onToggleLocation(location)}
-          >
-            {expandedGroups[location] ? "▼" : " "} {location}
-          </div>
+    <Stack>
+      {Object.values(Location).map((location) => {
+        const expanded = expandedGroups[location];
+        const filteredStatuses = statuses.filter(
+          (status) => status.location === location
+        );
 
-          {expandedGroups[location] && (
-            <ul style={{ listStyle: "none", paddingLeft: "1rem" }}>
-              {statuses
-                .filter((status) =>
-                  status.location === location
-                )
-                .map((status) => (
-                  <li key={status.status}>
-                    <input
-                      id={status.status}
-                      type="checkbox"
-                      checked={!!checkedStatuses[status.status]}
-                      onChange={() => onStatusCheck(status.status)}
-                    />
-                    <label
-                      htmlFor={status.status}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {status.status}
-                    </label>
-                  </li>
+        return (
+          <Box key={location}>
+            <Group
+              onClick={() => onToggleLocation(location)}
+              align="center"
+            >
+              {expanded ? (
+                <IconChevronDownRight size={16} />
+              ) : (
+                <IconChevronRight size={16} />
+              )}
+              <Text>{location}</Text>
+
+              {location === "FieldOffice" && (
+                <Rating defaultValue={1} count={4} size="sm" />
+              )}
+            </Group>
+
+            <Collapse in={expanded}>
+              <Stack pl="lg" mt="xs">
+                {filteredStatuses.map((status) => (
+                  <Checkbox
+                    key={status.status}
+                    label={status.status}
+                    checked={!!checkedStatuses[status.status]}
+                    onChange={() => onStatusCheck(status.status)}
+                  />
                 ))}
-            </ul>
-          )}
-        </div>
-      ))}
-    </>
+              </Stack>
+            </Collapse>
+          </Box>
+        );
+      })}
+    </Stack>
   );
 };
 

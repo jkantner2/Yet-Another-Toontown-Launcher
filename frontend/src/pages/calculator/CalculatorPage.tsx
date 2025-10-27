@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { GagAttack, StatusName } from "./CalcTypes.ts";
 import CogStatusMenu from "./CogStatusMenu.tsx";
-import { Box, Button, Drawer, Grid, Image, NumberInput } from "@mantine/core";
+import { Box, Button, Drawer, Grid, Image, Slider, Stack, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import GagMenu from "./GagMenu.tsx";
 import { CalculateAttacks } from "../../../bindings/YATL/services/calculatorservice.ts"
@@ -28,7 +28,7 @@ const Calculator: React.FC = () => {
     if (selectedGags.length) {
       handleCalcGags();
     }
-  }, [selectedGags]);
+  }, [selectedGags, cogLevel]);
 
   const handleCheckedStatus = (status: StatusName) => {
     setCheckedStatuses((prev) => ({
@@ -72,8 +72,16 @@ const Calculator: React.FC = () => {
   }
 
   const addDamageNumbers = () => {
-    let totalDamage = 0
-    analyzedAttacks.forEach((atk) => totalDamage += atk.TotalDamage)
+    let totalDamage = 0,
+      totalBaseDamage = 0,
+      totalLureDamage = 0,
+      totalComboDamage = 0
+
+    totalBaseDamage = Math.ceil(analyzedAttacks.reduce((total, atk) => total + atk.BaseDamage, 0))
+    totalLureDamage = Math.ceil(analyzedAttacks.reduce((total, atk) => total + atk.LureDamage, 0))
+    totalComboDamage = Math.ceil(analyzedAttacks.reduce((total, atk) => total + atk.ComboDamage, 0))
+
+    totalDamage = totalBaseDamage + totalLureDamage + totalComboDamage
     return Math.ceil(totalDamage)
   }
 
@@ -163,13 +171,22 @@ const Calculator: React.FC = () => {
         offset={8}
         radius="md"
       >
-        <NumberInput
-          label="Cog Level"
-          defaultValue={cogLevel}
-          min={1}
-          max={20}
-          onChange={handleCogLevel}
-        />
+        <Stack>
+          <Text fw={500}>Cog Level: {cogLevel}</Text>
+          <Slider
+            value={Number(cogLevel)}
+            onChange={handleCogLevel}
+            min={1}
+            max={20}
+            step={1}
+            marks={[
+              { value: 1, label: "1" },
+              { value: 12, label: "12" },
+              { value: 20, label: "20" },
+            ]}
+          />
+        </Stack>
+        <Box h={25}/>
         <CogStatusMenu
           checkedStatuses={checkedStatuses}
           onStatusCheck={handleCheckedStatus}
