@@ -2,10 +2,17 @@ import React from "react";
 import gagsData from "../../data/gags.json" with {type: "json"}
 import { Gag, GagMenuProps } from "./CalcTypes.ts";
 import { Box, Button, Grid, Image } from "@mantine/core";
+import { CatppuccinColors } from "../../themes/CatppuccinMocha.ts"
 
 const GagMenu: React.FC<GagMenuProps> = ({onSelectedGags}) => {
   const gags: Gag[] = gagsData
-  const rowColors = ['yellow', 'green', 'blue', 'orange', 'purple', ''];
+  const rowColors = [
+                CatppuccinColors.Yellow,
+                CatppuccinColors.Green,
+                CatppuccinColors.Blue,
+                CatppuccinColors.Peach,
+                CatppuccinColors.Mauve,
+                CatppuccinColors.Sky];
   let colorCounter = -1
 
   return (
@@ -19,7 +26,7 @@ const GagMenu: React.FC<GagMenuProps> = ({onSelectedGags}) => {
             <Grid.Col span={2} key={i}>
               <Box h={50} m={5}>
                 <Button
-                  variant="outline"
+                  variant="default"
                   fullWidth
                   h='100%'
                   onContextMenu={(e) => {
@@ -28,7 +35,8 @@ const GagMenu: React.FC<GagMenuProps> = ({onSelectedGags}) => {
                   }}
                   onClick={() => onSelectedGags({Gag: gags[i+7], IsOrg: false})}
                   style={{
-                    borderColor: rowColors[colorCounter]
+                    borderWidth: 0,
+                    background: rowColors[colorCounter],
                   }}
                 >
                   <Image src={gag.Resource} height={40} width={40} fit="contain"/>

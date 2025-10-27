@@ -1,7 +1,6 @@
 package calculator
 
 import (
-	"math"
 	"sort"
 	"strings"
 )
@@ -35,10 +34,10 @@ type Cog struct {
 type AttackAnalysis struct {
 	Gag         Gag
 	IsOrg       bool
-	BaseDamage  int
-	TotalDamage int
-	LureDamage  int
-	ComboDamage int
+	BaseDamage  float64
+	TotalDamage float64
+	LureDamage  float64
+	ComboDamage float64
 	FinalAcc    int
 }
 
@@ -80,10 +79,10 @@ var lureGagTiers = map[string]int{
 	"$5 Dollar Bill":  2,
 	"$10 Dollar Bill": 3,
 
-	"Small Magnet":    1,
-	"Big Magnet":      2,
-	"Hypno-goggles":   3,
-	"Presentation":    3,
+	"Small Magnet":  1,
+	"Big Magnet":    2,
+	"Hypno-goggles": 3,
+	"Presentation":  3,
 }
 
 // Helpers
@@ -95,16 +94,20 @@ func clampMax(x int, max int) int {
 }
 
 func filter[T any](ss []T, test func(T) bool) (ret []T) {
-    for _, s := range ss {
-        if test(s) {
-            ret = append(ret, s)
-        }
-    }
-    return
+	for _, s := range ss {
+		if test(s) {
+			ret = append(ret, s)
+		}
+	}
+	return
 }
 
 func IntoCalculateDamage(isLured bool, trackEXP int, attacks []AttackAnalysis, cog Cog) []AttackAnalysis {
 	// Set trackEXP to actual value
+	sort.Slice(attacks, func(i, j int) bool {
+		return gagOrder[attacks[i].Gag.GagType] < gagOrder[attacks[j].Gag.GagType]
+	})
+
 	trackEXP = (trackEXP - 1) * 10
 
 	tgtDEF := getTgtDEF(cog.Level, cog.Tier)
@@ -171,6 +174,8 @@ func CalculateDamageRec(
 	base, lure, combo := getGagDamage(*a, isLured, nextGag, prevGag)
 
 	// Add info to list
+	// TODO: Fix lure damage calculations. Conversion between float is somewhat off.
+	// Check lure + seltzer + hose
 	a.BaseDamage = base
 	a.LureDamage = lure
 	a.ComboDamage = combo
@@ -178,7 +183,8 @@ func CalculateDamageRec(
 	a.FinalAcc = gagAcc
 
 	// Change lure state
-	isLured = a.Gag.GagType == "Lure" && (prevGag == nil || prevGag.GagType != "Trap")
+	isLured = (a.Gag.GagType == "Lure" && (prevGag == nil || prevGag.GagType != "Trap")) ||
+		(isLured && nextGag != nil && nextGag.GagType == a.Gag.GagType)
 
 	// Change stun state
 	if prevGag == nil || prevGag.GagType != a.Gag.GagType {
@@ -197,7 +203,6 @@ func CalculateDamageRec(
 	CalculateDamageRec(attacks, i+1, stun, isLured, trackEXP, tgtDEF, cheats)
 }
 
-// TODO: Complete logic for returning completed gags
 func groupLure(attacks []AttackAnalysis) (*AttackAnalysis, *AttackAnalysis) {
 	var lureAttacks, groupLures, soloLures []AttackAnalysis
 
@@ -237,9 +242,9 @@ func groupLure(attacks []AttackAnalysis) (*AttackAnalysis, *AttackAnalysis) {
 	if len(soloLures) >= 2 {
 		for _, a := range soloLures[1:] {
 			if !mainSoloLure.IsOrg {
-				mainSoloLure.Gag.Damage += 20 - 5 * (lureGagTiers[mainSoloLure.Gag.GagName] - lureGagTiers[a.Gag.GagName])
+				mainSoloLure.Gag.Damage += 20 - 5*(lureGagTiers[mainSoloLure.Gag.GagName]-lureGagTiers[a.Gag.GagName])
 			} else {
-				mainSoloLure.Gag.OrgDamage += 20 - 5 * (lureGagTiers[mainSoloLure.Gag.GagName] - lureGagTiers[a.Gag.GagName])
+				mainSoloLure.Gag.OrgDamage += 20 - 5*(lureGagTiers[mainSoloLure.Gag.GagName]-lureGagTiers[a.Gag.GagName])
 			}
 		}
 	}
@@ -247,9 +252,9 @@ func groupLure(attacks []AttackAnalysis) (*AttackAnalysis, *AttackAnalysis) {
 	if len(groupLures) >= 2 {
 		for _, a := range groupLures[1:] {
 			if !mainGroupLure.IsOrg {
-				mainGroupLure.Gag.Damage += 20 -5 * (lureGagTiers[mainGroupLure.Gag.GagName] - lureGagTiers[a.Gag.GagName])
+				mainGroupLure.Gag.Damage += 20 - 5*(lureGagTiers[mainGroupLure.Gag.GagName]-lureGagTiers[a.Gag.GagName])
 			} else {
-				mainGroupLure.Gag.OrgDamage += 20 -5 * (lureGagTiers[mainGroupLure.Gag.GagName] - lureGagTiers[a.Gag.GagName])
+				mainGroupLure.Gag.OrgDamage += 20 - 5*(lureGagTiers[mainGroupLure.Gag.GagName]-lureGagTiers[a.Gag.GagName])
 			}
 		}
 	}
@@ -257,10 +262,10 @@ func groupLure(attacks []AttackAnalysis) (*AttackAnalysis, *AttackAnalysis) {
 	return mainSoloLure, mainGroupLure
 }
 
-func getGagDamage(attack AttackAnalysis, isLured bool, nextGag *Gag, prevGag *Gag) (int, int, int) {
+func getGagDamage(attack AttackAnalysis, isLured bool, nextGag *Gag, prevGag *Gag) (float64, float64, float64) {
 	g := attack.Gag
 	gagType := g.GagType
-	gagDamage, lureDamage, comboDamage := 0, 0, 0
+	gagDamage, lureDamage, comboDamage := 0.0, 0.0, 0.0
 	hasCombo := adjacentSameType(nextGag, prevGag, gagType)
 
 	// Calculate damage for current gag
@@ -279,9 +284,10 @@ func getGagDamage(attack AttackAnalysis, isLured bool, nextGag *Gag, prevGag *Ga
 	}
 
 	// TODO: Change base damage based on cheats here
-	baseDamage := g.Damage
+	var baseDamage float64
+	baseDamage = float64(g.Damage)
 	if attack.IsOrg {
-		baseDamage = g.OrgDamage
+		baseDamage = float64(g.OrgDamage)
 	}
 
 	switch {
@@ -296,15 +302,15 @@ func getGagDamage(attack AttackAnalysis, isLured bool, nextGag *Gag, prevGag *Ga
 		gagDamage = baseDamage
 	// Lured on Throw, Squirt, Sound
 	case isLured:
-		lureDamage = int(math.Ceil(float64(baseDamage) * 0.5))
+		lureDamage = baseDamage * 0.5
 		if hasCombo {
-			comboDamage = int(math.Ceil(float64(baseDamage)) * 0.2)
+			comboDamage = baseDamage * 0.2
 		}
 		gagDamage = baseDamage
 	// No funny buisiness
 	default:
 		if hasCombo {
-			comboDamage = int(math.Ceil(float64(baseDamage)) * 0.2)
+			comboDamage = baseDamage * 0.2
 		}
 		gagDamage = baseDamage
 	}

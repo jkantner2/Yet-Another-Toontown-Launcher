@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GagAttack, StatusName } from "./CalcTypes.ts";
 import CogStatusMenu from "./CogStatusMenu.tsx";
-import { Box, Button, Drawer, NumberInput, Text } from "@mantine/core";
+import { Box, Button, Drawer, Grid, Image, NumberInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import GagMenu from "./GagMenu.tsx";
 import { CalculateAttacks } from "../../../bindings/YATL/services/calculatorservice.ts"
 import { AttackAnalysis } from "../../../bindings/YATL/lib/calculator/models.ts";
+import { CatppuccinColors } from "../../themes/CatppuccinMocha.ts";
 
 const Calculator: React.FC = () => {
   const [opened, { open, close }] = useDisclosure(false);
@@ -22,6 +23,12 @@ const Calculator: React.FC = () => {
     }, {} as Record<StatusName, boolean>);
     return initState;
   });
+
+  useEffect(() => {
+    if (selectedGags.length) {
+      handleCalcGags();
+    }
+  }, [selectedGags]);
 
   const handleCheckedStatus = (status: StatusName) => {
     setCheckedStatuses((prev) => ({
@@ -46,6 +53,17 @@ const Calculator: React.FC = () => {
     setSelectedGags(() => [])
   }
 
+  const removeSelectedGag = (gag: GagAttack) => {
+    setSelectedGags((prev) => {
+      const index = prev.findIndex((g) => g.Gag.GagName === gag.Gag.GagName && g.IsOrg === gag.IsOrg);
+      if (index === -1) return prev;
+
+      const newGags = [...prev]
+      newGags.splice(index, 1)
+      return newGags
+    })
+  }
+
   const handleCogLevel = (lvl: string | number) => {
     const num = Number(lvl)
     if (!isNaN(num)) {
@@ -56,11 +74,11 @@ const Calculator: React.FC = () => {
   const addDamageNumbers = () => {
     let totalDamage = 0
     analyzedAttacks.forEach((atk) => totalDamage += atk.TotalDamage)
-    return totalDamage
+    return Math.ceil(totalDamage)
   }
 
   const handleCalcGags = async () => {
-    const result = await CalculateAttacks(selectedGags, false, {level: Number(cogLevel), tier: 8, cheats: []})
+    const result = await CalculateAttacks(selectedGags, false, { level: Number(cogLevel), tier: 8, cheats: [] })
 
     handleAnalyzeAttacks(result)
   }
@@ -68,11 +86,42 @@ const Calculator: React.FC = () => {
   // TODO make images for selected gag display
   return (
     <>
-      <Box p='lg'>
+      <Box p='lg' style={{ borderColor: CatppuccinColors.Text, borderWidth: 5, borderRadius: 10 }}>
         <GagMenu
           onSelectedGags={handleSelectedGag}
         />
       </Box>
+
+      <Grid
+        className="selected-gags"
+        columns={14}
+        gutter={20}
+        justify="center"
+        align="center"
+        h={60}
+      >
+        {selectedGags.map((gag, i) => {
+          return (
+            <Grid.Col span={2} key={i}>
+              <Button
+                variant="default"
+                fullWidth
+                h={50}
+                onContextMenu={(e) => {
+                  e.preventDefault()
+                }}
+                onClick={() => removeSelectedGag(gag)}
+                style={{
+                  background: gag.IsOrg ? CatppuccinColors.Green : CatppuccinColors.Blue,
+                  border: 0
+                }}
+              >
+                <Image src={gag.Gag.Resource} height={40} width={40} fit="contain" />
+              </Button>
+            </Grid.Col>
+          )
+        })}
+      </Grid>
 
       <Button variant="default"
         onClick={open}
@@ -90,35 +139,22 @@ const Calculator: React.FC = () => {
         Clear Gags
       </Button>
 
-      <Button variant="default"
-        onClick={handleCalcGags}
-        onContextMenu={(e) => e.preventDefault()}
-        m='sm'
-      >
-        Calculate
-      </Button>
-
-
-      <Box>
-        {selectedGags.map(gag => {
-          return (
-          <Text>
-            {`Gag: ${gag.Gag.GagName} Org: ${gag.IsOrg}`}
-          </Text>
+      <div>{`Total damage: ${addDamageNumbers()}`}</div>
+      <div>
+        {`Final accuracy: ${analyzedAttacks
+          .filter(
+            (atk, index, self) =>
+              self.findIndex((a) => a.Gag.GagType === atk.Gag.GagType) === index
           )
-        })}
-      </Box>
+          .reduce((total, atk) => total * atk.FinalAcc * 0.01, 100)
+          .toFixed(2)}%`}
+      </div>
 
-      <>
-          {analyzedAttacks.map(atk => {
-            return(
-              <Box>
-                <div>{`${atk.Gag.GagName} : ${atk.TotalDamage} : ${atk.FinalAcc}`}</div>
-              </Box>
-            )
-          })}
-        <div>{`Total damage: ${addDamageNumbers()}`}</div>
-      </>
+      {analyzedAttacks.map(atk => {
+        return (
+          <div>{`base: ${atk.BaseDamage} | combo: ${atk.ComboDamage.toFixed(2)} | lure: ${atk.LureDamage.toFixed(2)}`}</div>
+        )
+      })}
 
       <Drawer
         opened={opened}
