@@ -3,6 +3,7 @@ package calculator
 import (
 	"math"
 	"sort"
+	"strings"
 )
 
 // Special Cases:
@@ -74,16 +75,56 @@ var gagOrder = map[string]int{
 	"Drop":    6,
 }
 
-func IntoCalculateDamage(isLured bool, trackEXP int, attacks []AttackAnalysis, cog Cog) []AttackAnalysis {
-	// Sort attacks by gagOrder
-	sort.Slice(attacks, func(i, j int) bool {
-		return gagOrder[attacks[i].Gag.GagType] < gagOrder[attacks[j].Gag.GagType]
-	})
+var lureGagTiers = map[string]int{
+	"$1 Dollar Bill":  1,
+	"$5 Dollar Bill":  2,
+	"$10 Dollar Bill": 3,
 
+	"Small Magnet":    1,
+	"Big Magnet":      2,
+	"Hypno-goggles":   3,
+	"Presentation":    3,
+}
+
+// Helpers
+func clampMax(x int, max int) int {
+	if x > max {
+		return max
+	}
+	return x
+}
+
+func filter[T any](ss []T, test func(T) bool) (ret []T) {
+    for _, s := range ss {
+        if test(s) {
+            ret = append(ret, s)
+        }
+    }
+    return
+}
+
+func IntoCalculateDamage(isLured bool, trackEXP int, attacks []AttackAnalysis, cog Cog) []AttackAnalysis {
 	// Set trackEXP to actual value
 	trackEXP = (trackEXP - 1) * 10
 
 	tgtDEF := getTgtDEF(cog.Level, cog.Tier)
+
+	soloLure, groupLure := groupLure(attacks)
+
+	lureGagTest := func(a AttackAnalysis) bool { return a.Gag.GagType != "Lure" }
+	attacks = filter(attacks, lureGagTest)
+
+	if soloLure != nil {
+		attacks = append(attacks, *soloLure)
+	}
+
+	if groupLure != nil {
+		attacks = append(attacks, *groupLure)
+	}
+
+	sort.Slice(attacks, func(i, j int) bool {
+		return gagOrder[attacks[i].Gag.GagType] < gagOrder[attacks[j].Gag.GagType]
+	})
 
 	CalculateDamageRec(&attacks, 0, 0, isLured, trackEXP, tgtDEF, cog.Cheats)
 
@@ -156,25 +197,64 @@ func CalculateDamageRec(
 	CalculateDamageRec(attacks, i+1, stun, isLured, trackEXP, tgtDEF, cheats)
 }
 
-// TODO clamp to 0 too
-func clampMax(x int, max int) int {
-	if x > max {
-		return max
-	}
-	return x
-}
-
-func groupLure(attacks []AttackAnalysis) Gag {
-	var lureGags []Gag
+// TODO: Complete logic for returning completed gags
+func groupLure(attacks []AttackAnalysis) (*AttackAnalysis, *AttackAnalysis) {
+	var lureAttacks, groupLures, soloLures []AttackAnalysis
 
 	for _, attack := range attacks {
 		if attack.Gag.GagType == "Lure" {
-			lureGags = append(lureGags, attack.Gag)
+			lureAttacks = append(lureAttacks, attack)
 		}
 	}
 
+	if len(lureAttacks) == 0 {
+		return nil, nil
+	}
 
-	return Gag{}
+	sort.Slice(lureAttacks, func(i, j int) bool {
+		return lureAttacks[i].Gag.Damage > lureAttacks[j].Gag.Damage
+	})
+
+	for _, a := range lureAttacks {
+		if strings.HasPrefix(a.Gag.GagName, "$") {
+			soloLures = append(soloLures, a)
+		} else {
+			groupLures = append(groupLures, a)
+		}
+	}
+
+	var mainSoloLure *AttackAnalysis
+	var mainGroupLure *AttackAnalysis
+
+	if len(soloLures) >= 1 {
+		mainSoloLure = &soloLures[0]
+	}
+
+	if len(groupLures) >= 1 {
+		mainGroupLure = &groupLures[0]
+	}
+
+	if len(soloLures) >= 2 {
+		for _, a := range soloLures[1:] {
+			if !mainSoloLure.IsOrg {
+				mainSoloLure.Gag.Damage += 20 - 5 * (lureGagTiers[mainSoloLure.Gag.GagName] - lureGagTiers[a.Gag.GagName])
+			} else {
+				mainSoloLure.Gag.OrgDamage += 20 - 5 * (lureGagTiers[mainSoloLure.Gag.GagName] - lureGagTiers[a.Gag.GagName])
+			}
+		}
+	}
+
+	if len(groupLures) >= 2 {
+		for _, a := range groupLures[1:] {
+			if !mainGroupLure.IsOrg {
+				mainGroupLure.Gag.Damage += 20 -5 * (lureGagTiers[mainGroupLure.Gag.GagName] - lureGagTiers[a.Gag.GagName])
+			} else {
+				mainGroupLure.Gag.OrgDamage += 20 -5 * (lureGagTiers[mainGroupLure.Gag.GagName] - lureGagTiers[a.Gag.GagName])
+			}
+		}
+	}
+
+	return mainSoloLure, mainGroupLure
 }
 
 func getGagDamage(attack AttackAnalysis, isLured bool, nextGag *Gag, prevGag *Gag) (int, int, int) {
