@@ -4,7 +4,7 @@ import { Box, Checkbox, Collapse, Group, Rating, Stack, Text } from "@mantine/co
 import { IconChevronDownRight, IconChevronRight } from "@tabler/icons-react"
 
 const CogStatusMenu: React.FC<CogStatusMenuProps> = (
-  { checkedStatuses, onStatusCheck },
+  { checkedStatuses, onStatusCheck, setBoilerLevel, boilerLevel },
 ) => {
   const [expandedGroups, setExpandedGroups] = useState<
     Record<Location, boolean>
@@ -49,7 +49,7 @@ const CogStatusMenu: React.FC<CogStatusMenuProps> = (
               <Text>{location}</Text>
 
               {location === "FieldOffice" && (
-                <Rating defaultValue={1} count={4} size="sm" />
+                <Rating count={4} size="sm" onChange={setBoilerLevel} value={boilerLevel}/>
               )}
             </Group>
 

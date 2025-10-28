@@ -13,6 +13,7 @@ const Calculator: React.FC = () => {
   const [cogLevel, setCogLevel] = useState<string | number>(12);
   const [selectedGags, setSelectedGags] = useState<Array<GagAttack>>([]);
   const [analyzedAttacks, setAnalyzedAttacks] = useState<Array<AttackAnalysis>>([]);
+  const [boilerLevel, setBoilerLevel] = useState<number>(1);
 
   const [checkedStatuses, setCheckedStatuses] = useState<
     Record<StatusName, boolean>
@@ -28,7 +29,7 @@ const Calculator: React.FC = () => {
     if (selectedGags.length) {
       handleCalcGags();
     }
-  }, [selectedGags, cogLevel]);
+  }, [selectedGags, cogLevel, checkedStatuses, boilerLevel]);
 
   const handleCheckedStatus = (status: StatusName) => {
     setCheckedStatuses((prev) => ({
@@ -86,7 +87,12 @@ const Calculator: React.FC = () => {
   }
 
   const handleCalcGags = async () => {
-    const result = await CalculateAttacks(selectedGags, false, { level: Number(cogLevel), tier: 8, cheats: [] })
+    const result = await CalculateAttacks(selectedGags, false, {
+      boilerLevel: boilerLevel,
+      level: Number(cogLevel),
+      tier: 8,
+      cheats: Object.values(StatusName).filter((status) => checkedStatuses[status] === true)
+    })
 
     handleAnalyzeAttacks(result)
   }
@@ -186,10 +192,12 @@ const Calculator: React.FC = () => {
             ]}
           />
         </Stack>
-        <Box h={25}/>
+        <Box h={25} />
         <CogStatusMenu
           checkedStatuses={checkedStatuses}
           onStatusCheck={handleCheckedStatus}
+          setBoilerLevel={setBoilerLevel}
+          boilerLevel={boilerLevel}
         />
       </Drawer>
     </>
