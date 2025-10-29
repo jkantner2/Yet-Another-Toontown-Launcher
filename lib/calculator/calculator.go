@@ -152,7 +152,6 @@ func multiplyAllDamages(atk *AttackAnalysis, def float64) {
 }
 
 func IntoCalculateDamage(isLured bool, trackEXP int, attacks []AttackAnalysis, cog Cog) []AttackAnalysis {
-	// Set trackEXP to actual value
 	sort.Slice(attacks, func(i, j int) bool {
 		return gagOrder[attacks[i].Gag.GagType] < gagOrder[attacks[j].Gag.GagType]
 	})
@@ -324,13 +323,20 @@ func getGagDamage(attack AttackAnalysis, isLured bool, nextGag *Gag, prevGag *Ga
 		return 0, 0, 0
 	}
 
-	// Trap deals none if multiple on cog
-	if gagType == "Trap" && adjacentSameType(nextGag, prevGag, gagType) {
-		return 0, 0, 0
-	}
-
-	if gagType == "Trap" && nextGag == nil {
-		return 0, 0, 0
+	if gagType == "Trap" {
+		// Multiple traps
+		if adjacentSameType(nextGag, prevGag, gagType) {
+			return 0, 0, 0
+		}
+		// Trap at the end or with no lure
+		if nextGag == nil || nextGag.GagType != "Lure" {
+			return 0, 0, 0
+		}
+		damage := float64(g.Damage)
+		if attack.IsOrg {
+			damage = float64(g.OrgDamage)
+		}
+		return damage, 0, 0
 	}
 
 	var baseDamage float64

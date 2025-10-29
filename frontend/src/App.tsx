@@ -92,7 +92,7 @@ const App: React.FC = () => {
     ));
 
     return (
-      <>
+      <div style={{}}>
         <AppShell
           padding="md"
           navbar={{
@@ -100,7 +100,7 @@ const App: React.FC = () => {
             breakpoint: "sm",
           }}
         >
-          <AppShell.Navbar p="md">
+          <AppShell.Navbar p="md" style={{}}>
               <Stack justify="center" gap={2}>
                 {links}
               </Stack>
@@ -109,7 +109,7 @@ const App: React.FC = () => {
             {renderPage()}
           </AppShell.Main>
         </AppShell>
-      </>
+      </div>
     );
   };
 

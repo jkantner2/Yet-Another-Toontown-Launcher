@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CogStatusMenuProps, Location, statuses } from "./CalcTypes";
-import { Box, Checkbox, Collapse, Group, Rating, Stack, Text } from "@mantine/core";
+import { Box, Checkbox, Collapse, Divider, Group, Rating, Stack, Text } from "@mantine/core";
 import { IconChevronDownRight, IconChevronRight } from "@tabler/icons-react"
 
 const CogStatusMenu: React.FC<CogStatusMenuProps> = (
@@ -11,7 +11,7 @@ const CogStatusMenu: React.FC<CogStatusMenuProps> = (
   >(() => {
     const initState: Record<Location, boolean> = Object.values(Location).reduce(
       (acc, loc) => {
-        acc[loc as Location] = true;
+        acc[loc as Location] = false;
         return acc;
       },
       {} as Record<Location, boolean>,
@@ -65,6 +65,7 @@ const CogStatusMenu: React.FC<CogStatusMenuProps> = (
                 ))}
               </Stack>
             </Collapse>
+              <Divider my='sm'/>
           </Box>
         );
       })}

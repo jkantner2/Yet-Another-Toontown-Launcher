@@ -28,6 +28,13 @@ export interface Cog {
   cheats: string[];
 }
 
+
+export interface CogHealthBarProps {
+  cogHealthModifier: number;
+  finalDamage: number;
+  tempDamage: number;
+}
+
 export interface CogStatusMenuProps {
   checkedStatuses: Record<StatusName, boolean>
   setBoilerLevel: Dispatch<SetStateAction<number>>;
@@ -37,6 +44,14 @@ export interface CogStatusMenuProps {
 
 export interface GagMenuProps {
   onSelectedGags: (gag: GagAttack) => void;
+  handlegagMenuHoverEnd: () => void;
+  handlegagMenuHover: (gag: GagAttack) => void;
+  isLured: boolean;
+}
+
+export interface AccuracyBarProps {
+  finalAccuracy: number;
+  tempAccuracy: number;
 }
 
 export interface CogOptionsProps {
