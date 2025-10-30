@@ -8,6 +8,7 @@ import {
 } from "../bindings/YATL/services/loginservice.ts";
 import { NavbarData, NavbarLinkProps, SidebarItems } from "./NavbarTypes.ts";
 import classes from "./navbar.module.css"
+import MultiToonPage from "./pages/multiToon/MultiToonPage.tsx";
 
 const ComingSoonPage: React.FC<{ title: string }> = ({ title }) => (
   <div>{title} Page (coming soon)</div>
@@ -68,7 +69,7 @@ const App: React.FC = () => {
       case SidebarItems.Calculator:
         return <Calculator />;
       case SidebarItems.MultiToon:
-        return <ComingSoonPage title="MultiToon Page" />;
+        return <MultiToonPage/>;
       case SidebarItems.Suits:
         return <ComingSoonPage title="Cog Suits" />;
       case SidebarItems.Fishing:

@@ -1,55 +1,93 @@
 package multi
 
 /*
-#include <X11/X.h>
-#include <stdio.h>
+#cgo LDFLAGS: -lxdo -lMultiToonLib
 #include <stdlib.h>
-#include <xdo.h>
-
-int xdo_select_window()
-{
-	xdo_t *xdo = xdo_new(NULL);
-	if (!xdo) {
-		fprintf(stderr, "Failde to init xdo\n");
-		return 1;
-	}
-
-	printf("Click on window to select\n");
-
-	Window w = 0;
-	int ret = xdo_select_window_with_click(xdo, &w);
-
-	if (ret != XDO_SUCCESS) {
-		fprintf(stderr, "Failed to select window\n");
-		xdo_free(xdo);
-		return 1;
-	}
-
-	// get window name
-	unsigned char *name = NULL;
-	int name_len = 0;
-	int name_type = 0;
-	ret = xdo_get_window_name(xdo, w, &name, &name_len, &name_type);
-	if (ret == XDO_SUCCESS && name != NULL) {
-		printf("Window 0x%lx name: %.*s (length=%d, type=%d)\n",
-		       w,
-		       name_len,
-		       name,
-		       name_len,
-		       name_type);
-		free(name);
-	} else {
-		printf("Window 0x%lx has no name or failed to retrieve it\n",
-		       w);
-	}
-
-	xdo_free(xdo);
-        return 0;
-}
-#cgo LDFLAGS: -lxdo
+#include "multitoonlib.h"
 */
 import "C"
 
-func Go_select_window() {
-	C.xdo_select_window()
+import (
+	"errors"
+	"fmt"
+	"runtime"
+	"unsafe"
+
+	"github.com/rs/zerolog/log"
+)
+
+type Session struct {
+	ptr *C.mtlib_session_t
+}
+
+
+func Init() (*Session, error) {
+	mtlib_pointer := C.mtlib_init()
+	if mtlib_pointer == nil {
+		return nil, errors.New("mtlib_init failed to init")
+	}
+
+	mtlib_session := &Session{ptr: mtlib_pointer}
+
+	runtime.SetFinalizer(mtlib_session, func(s *Session) {
+		if s.ptr != nil {
+			C.mtlib_shutdown(s.ptr)
+			s.ptr = nil
+		}
+	})
+	return mtlib_session, nil
+}
+
+func (s *Session) Shutdown() {
+	if s == nil || s.ptr == nil {
+		return
+	}
+	C.mtlib_shutdown(s.ptr)
+	s = nil
+	runtime.SetFinalizer(s, nil)
+}
+
+func (s *Session) SelectWindow() C.Window {
+	if s == nil || s.ptr == nil {
+		return 0
+	}
+	log.Info().Msg(fmt.Sprintf("session ptr: %p\n", s.ptr))
+	window := C.mtlib_select_window(s.ptr)
+	return window
+}
+
+func (s *Session) SetKeyDown(window uint64, key string) error {
+	if s == nil || s.ptr == nil {
+		return errors.New("session is nil")
+	}
+	log.Info().Msg(fmt.Sprintf("session ptr: %p\n", s.ptr))
+
+	cs := C.CString(key)
+	defer C.free(unsafe.Pointer(cs))
+	C.mtlib_set_key_down(s.ptr, C.Window(window), cs)
+	return nil
+}
+
+func (s *Session) SetKeyUp(window uint64, key string) error {
+	if s == nil || s.ptr == nil {
+		return errors.New("session is nil")
+	}
+	log.Info().Msg(fmt.Sprintf("session ptr: %p\n", s.ptr))
+
+	cs := C.CString(key)
+	defer C.free(unsafe.Pointer(cs))
+	C.mtlib_set_key_up(s.ptr, C.Window(window), cs)
+	return nil
+}
+
+func (s *Session) SendKey(window uint64, key string) error {
+	if s == nil || s.ptr == nil {
+		return errors.New("session is nil")
+	}
+	log.Info().Msg(fmt.Sprintf("session ptr: %p\n", s.ptr))
+
+	cs := C.CString(key)
+	defer C.free(unsafe.Pointer(cs))
+	C.mtlib_send_key(s.ptr, C.Window(window), cs)
+	return nil
 }

@@ -30,6 +30,7 @@ func main() {
 		log.Error().Err(configErr).Msg("Could not init viper")
 	}
 
+
 	// Generate random auth header for session
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	AuthHeader := make([]byte, len(letters))
@@ -45,6 +46,7 @@ func main() {
 		Services: []application.Service{
 			application.NewService(&services.LoginService{}),
 			application.NewService(&services.CalculatorService{}),
+			application.NewService(&services.MutliService{}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
