@@ -31,7 +31,6 @@ func main() {
 	}
 
 
-	// Generate random auth header for session
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	AuthHeader := make([]byte, len(letters))
 	for i := range letters {
@@ -39,7 +38,6 @@ func main() {
 	}
 	os.Setenv("TTR_AUTH_HEADER", string(AuthHeader))
 
-	// Create an instance of your app structure
 	app := application.New(application.Options{
 		Name: "YATL",
 		Description: "Yet Another Toontown Launcher",

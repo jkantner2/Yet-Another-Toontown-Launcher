@@ -12,19 +12,15 @@ const MultiToonPage: React.FC = () => {
   }
 
   const setKeyUp = async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await Mt_set_key_up(MTsessions[0], MTWindow, "ctrl")
+    await Mt_set_key_up(MTsessions[0], MTWindow, "a")
   }
 
   const setKeyDown = async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await Mt_set_key_down(MTsessions[0], MTWindow, "ctrl")
+    await Mt_set_key_down(MTsessions[0], MTWindow, "a")
   }
 
-
   const MTJump = async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await Mt_send_key(MTsessions[0], MTWindow, "ctrl")
+    await Mt_send_key(MTsessions[0], MTWindow, "b")
   }
 
   const getMTWindow = async () => {
@@ -32,6 +28,19 @@ const MultiToonPage: React.FC = () => {
 
     setMTWindow(newWindow)
   }
+
+  // const keyToPanda3DBind = (key: string) => {
+  //   key = key.trim()
+  //   if (/^[a-zA-Z0-9]$/.test(key)) {
+  //     return key;
+  //   }
+  //
+  //   if (key in keyMap) {
+  //     return keyMap[key];
+  //   }
+  //
+  //   return "invalid_key";
+  // }
 
   return (
     <>

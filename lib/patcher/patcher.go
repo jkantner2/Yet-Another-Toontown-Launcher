@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -62,9 +61,10 @@ func getPlatformString() string {
 	goarch := runtime.GOARCH
 
 	if goos == "windows" {
-		if goarch == "386" {
+		switch goarch {
+		case "386":
 			return "win32"
-		} else if goarch == "amd64" {
+		case "amd64":
 			return "win64"
 		}
 	}
@@ -154,7 +154,7 @@ func isFileInstalled(filename string, checkSum string) (bool, error) {
 		return false, fmt.Errorf("Could not get install directory: %w", err)
 	}
 
-	match, err := compareCheckSum(path.Join(installDir, filename), checkSum)
+	match, err := compareCheckSum(filepath.Join(installDir, filename), checkSum)
 
 	if err != nil {
 		return false, fmt.Errorf("Could not compare checksum: %w", err)
@@ -294,7 +294,8 @@ func decompressFile(sourceFile string, destFile string) error {
 	// Remove old file and replace with decompressed file
 	// (I dunno how mac/windows treat renames if file exists)
 	os.Remove(sourceFile)
-	err = os.Rename(tempFile, sourceFile); if err != nil {
+	err = os.Rename(tempFile, sourceFile)
+	if err != nil {
 		return fmt.Errorf("Failed to rename temp file: %w", err)
 
 	}
@@ -330,13 +331,13 @@ func installTTR(tempDir string, filesToInstall map[string]string) error {
 	}
 
 	for file := range filesToInstall {
-		err := os.Rename(path.Join(tempDir, file), path.Join(installDir, file))
+		err := os.Rename(filepath.Join(tempDir, file), filepath.Join(installDir, file))
 		if err != nil {
 			return fmt.Errorf("Failed to rename file %s: %w", file, err)
 		}
 		// Set TTREngine to executable on mac and linux
 		if (file == "TTREngine" || file == "Toontown Rewritten") && (runtime.GOOS == "linux" || runtime.GOOS == "darwin") {
-			err := os.Chmod(path.Join(installDir, file), 0755)
+			err := os.Chmod(filepath.Join(installDir, file), 0755)
 			if err != nil {
 				log.Error().
 					Str("file", file).
@@ -352,10 +353,11 @@ func installTTR(tempDir string, filesToInstall map[string]string) error {
 func GetInstallDirByOS() (string, error) {
 	switch runtime.GOOS {
 	case "windows":
-		programFiles := os.Getenv("ProgramFiles")
-		if programFiles != "" {
-			return filepath.Join(programFiles, "Toontown Rewritten"), nil
+		appData := os.Getenv("LOCALAPPDATA")
+		if appData == "" {
+			return "", fmt.Errorf("LOCALAPPDATA not set")
 		}
+		return filepath.Join(appData, "Toontown Rewritten"), nil
 	case "darwin":
 		homeDir, err := GetHomeDir()
 		if err != nil {

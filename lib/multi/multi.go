@@ -1,9 +1,11 @@
 package multi
 
 /*
-#cgo LDFLAGS: -lxdo -lMultiToonLib
+#cgo linux LDFLAGS: -lmultitoon
+#cgo windows LDFLAGS: -lmultitoon -L${SRCDIR}
+#cgo CFLAGS: -I/usr/include/multitoon
 #include <stdlib.h>
-#include "multitoonlib.h"
+#include "mtlib.h"
 */
 import "C"
 
@@ -47,7 +49,7 @@ func (s *Session) Shutdown() {
 	runtime.SetFinalizer(s, nil)
 }
 
-func (s *Session) SelectWindow() C.Window {
+func (s *Session) SelectWindow() C.uint64_t {
 	if s == nil || s.ptr == nil {
 		return 0
 	}
@@ -64,7 +66,7 @@ func (s *Session) SetKeyDown(window uint64, key string) error {
 
 	cs := C.CString(key)
 	defer C.free(unsafe.Pointer(cs))
-	C.mtlib_set_key_down(s.ptr, C.Window(window), cs)
+	C.mtlib_set_key_down(s.ptr, C.uint64_t(window), cs)
 	return nil
 }
 
@@ -76,7 +78,7 @@ func (s *Session) SetKeyUp(window uint64, key string) error {
 
 	cs := C.CString(key)
 	defer C.free(unsafe.Pointer(cs))
-	C.mtlib_set_key_up(s.ptr, C.Window(window), cs)
+	C.mtlib_set_key_up(s.ptr, C.uint64_t(window), cs)
 	return nil
 }
 
@@ -88,6 +90,6 @@ func (s *Session) SendKey(window uint64, key string) error {
 
 	cs := C.CString(key)
 	defer C.free(unsafe.Pointer(cs))
-	C.mtlib_send_key(s.ptr, C.Window(window), cs)
+	C.mtlib_send_key(s.ptr, C.uint64_t(window), cs)
 	return nil
 }
