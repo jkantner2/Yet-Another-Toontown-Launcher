@@ -1,7 +1,7 @@
 package login
 
 import (
-	"YATL/lib/patcher"
+	"YATL/src/patcher"
 	"path/filepath"
 	"slices"
 

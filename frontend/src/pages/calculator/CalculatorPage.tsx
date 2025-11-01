@@ -5,10 +5,10 @@ import { Box, Button, Drawer, Grid, Group, Image, Slider, Stack, Switch, Text } 
 import { useDisclosure } from "@mantine/hooks";
 import GagMenu from "./GagMenu.tsx";
 import { CalculateAttacks } from "../../../bindings/YATL/services/calculatorservice.ts"
-import { AttackAnalysis } from "../../../bindings/YATL/lib/calculator/models.ts";
 import { CatppuccinColors } from "../../themes/CatppuccinMocha.ts";
 import CogHealthBar from "./cogHealthBar.tsx";
 import AccuracyBar from "./AccuracyBar.tsx";
+import { AttackAnalysis } from "../../../bindings/YATL/src/calculator/models.ts";
 
 const Calculator: React.FC = () => {
   const [opened, { open, close }] = useDisclosure(false);

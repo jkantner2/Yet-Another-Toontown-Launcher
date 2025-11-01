@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"YATL/lib/patcher"
+	"YATL/src/patcher"
 	"errors"
 	"fmt"
 	"os"

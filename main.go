@@ -1,8 +1,8 @@
 package main
 
 import (
-	"YATL/lib/config"
-	"YATL/lib/logger"
+	"YATL/src/config"
+	"YATL/src/logger"
 	"YATL/services"
 	"math/rand/v2"
 	"os"

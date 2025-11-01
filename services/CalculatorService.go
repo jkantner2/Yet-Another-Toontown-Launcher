@@ -1,7 +1,7 @@
 package services
 
 import (
-	"YATL/lib/calculator"
+	"YATL/src/calculator"
 )
 
 type CalculatorService struct{}

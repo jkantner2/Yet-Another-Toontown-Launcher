@@ -15,7 +15,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"YATL/lib/patcher"
+	"YATL/src/patcher"
 )
 
 const loginURL = "https://www.toontownrewritten.com/api/login?format=json"

@@ -1,7 +1,7 @@
 package services
 
 import (
-	"YATL/lib/login"
+	"YATL/src/login"
 	"os"
 	"syscall"
 )

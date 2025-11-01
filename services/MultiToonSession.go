@@ -1,7 +1,7 @@
 package services
 
 import (
-	"YATL/lib/multi"
+	"YATL/src/multi"
 	"sync"
 
 	"github.com/rs/zerolog/log"
