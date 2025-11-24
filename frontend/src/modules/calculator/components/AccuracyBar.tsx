@@ -1,8 +1,8 @@
 import { Box, RingProgress, Text } from "@mantine/core";
-import { AccuracyBarProps } from "./CalcTypes";
-import { CatppuccinColors } from "../../themes/CatppuccinMocha";
+import { AccuracyBarProps } from "../logic/types";
+import { CatppuccinColors } from "../../../themes/CatppuccinMocha";
 
-const AccuracyBar: React.FC<AccuracyBarProps> = ({ finalAccuracy, tempAccuracy }) => {
+const AccuracyBar: React.FC<AccuracyBarProps> = ({ finalAccuracy }) => {
   return (
     <Box pb='sm'>
       <RingProgress

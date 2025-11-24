@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CogStatusMenuProps, Location, statuses } from "./CalcTypes";
+import { CogStatusMenuProps, Location, statuses } from "../logic/types";
 import { Box, Checkbox, Collapse, Divider, Group, Rating, Stack, Text } from "@mantine/core";
 import { IconChevronDownRight, IconChevronRight } from "@tabler/icons-react"
 

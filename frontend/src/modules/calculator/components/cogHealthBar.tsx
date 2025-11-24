@@ -1,7 +1,7 @@
 import { Box } from "@mantine/core";
 import React from "react";
-import { CatppuccinColors } from "../../themes/CatppuccinMocha";
-import { CogHealthBarProps } from "./CalcTypes";
+import { CatppuccinColors } from "../../../themes/CatppuccinMocha";
+import { CogHealthBarProps } from "../logic/types";
 
 const CogHealthBar: React.FC<CogHealthBarProps> = ({ finalDamage, cogHealthModifier, tempDamage }) => {
   const levelValues: number[] = [

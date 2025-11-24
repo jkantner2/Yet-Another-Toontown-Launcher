@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import LoginPage from "./pages/login/Login";
-import Calculator from "./pages/calculator/CalculatorPage.tsx";
+import LoginPage from "./modules/login/Login";
+import Calculator from "./modules/calculator/CalculatorPage.tsx";
 import { AppShell, Stack, Tooltip, UnstyledButton } from "@mantine/core";
 import {
   GetAllAccounts,
@@ -8,7 +8,7 @@ import {
 } from "../bindings/YATL/services/loginservice.ts";
 import { NavbarData, NavbarLinkProps, SidebarItems } from "./NavbarTypes.ts";
 import classes from "./navbar.module.css"
-import MultiToonPage from "./pages/multiToon/MultiToonPage.tsx";
+import MultiToonPage from "./modules/multiToon/MultiToonPage.tsx";
 
 const ComingSoonPage: React.FC<{ title: string }> = ({ title }) => (
   <div>{title} Page (coming soon)</div>

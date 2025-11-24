@@ -3,7 +3,7 @@ package multi
 /*
 #cgo linux LDFLAGS: -lmultitoon
 #cgo windows LDFLAGS: -lmultitoon -L${SRCDIR}/../../lib
-#cgo darwin LDFLAGS: -L${SRCDIR}/../../lib -lmultitoon -framework Carbon -framework CoreFoundation -framework CoreGraphics -lSystem
+#cgo darwin LDFLAGS: -L${SRCDIR}/../../lib -lmultitoon -lSystem -framework Carbon -framework CoreFoundation -framework CoreGraphics
 #cgo CFLAGS: -I/usr/include/multitoon
 #include <stdlib.h>
 #include "mtlib.h"
@@ -22,7 +22,6 @@ import (
 type Session struct {
 	ptr *C.mtlib_session_t
 }
-
 
 func Init() (*Session, error) {
 	mtlib_pointer := C.mtlib_init()

@@ -1,9 +1,9 @@
 import React from "react";
-import gagsData from "../../data/gags.json" with {type: "json"}
-import { Gag, GagMenuProps } from "./CalcTypes.ts";
+import gagsData from "../../../data/gags.json" with {type: "json"}
+import { Gag, GagMenuProps } from "../logic/types.ts";
 import { Box, Button, Grid, Image } from "@mantine/core";
-import { CatppuccinColors } from "../../themes/CatppuccinMocha.ts"
-import classes from "./calculator.module.css"
+import { CatppuccinColors } from "../../../themes/CatppuccinMocha.ts"
+import classes from "../calculator.module.css"
 
 const GagMenu: React.FC<GagMenuProps> = ({ onSelectedGags, handlegagMenuHoverEnd, handlegagMenuHover, isLured }) => {
   const gags: Gag[] = gagsData

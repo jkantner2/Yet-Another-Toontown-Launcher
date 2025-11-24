@@ -1,7 +1,57 @@
-export interface ControlProfile {
+export interface MTProfile {
   name: string,
   keyMap: Record<string, string>
 }
+
+export interface MTSession {
+  mt_session: number,
+  window: number,
+  profile: MTProfile,
+
+}
+
+export const groups: Record<string, string[]> = {
+  Gameplay: [
+    'forward',
+    'reverse',
+    'left',
+    'right',
+    'jump',
+    'walk',
+    'performAction',
+    'stickerBook',
+    'exitActivity'
+  ],
+  Camera: [
+    'cameraNext',
+    'cameraPrev',
+    'lookUp',
+    'lookDown',
+    'printCameraPos'
+  ],
+  Chat: [
+    'chat',
+    'groupChat',
+    'friendsList'
+  ],
+  UI: [
+    'showMap',
+    'showTasks',
+    'showGags',
+  ],
+  Debug: [
+    'detectGarbage',
+    'toggleGui',
+    'toggleNametags',
+    'options',
+    'screenshot',
+    'screenshotDebug',
+    'synchronizeTime',
+    'thinkCogHQFacilities',
+    'thinkDebug',
+  ],
+};
+
 
 // export const keyMap: Record<string, string> = {
 //   // Func keys

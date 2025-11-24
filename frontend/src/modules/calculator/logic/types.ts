@@ -37,7 +37,7 @@ export interface CogHealthBarProps {
 
 export interface CogStatusMenuProps {
   checkedStatuses: Record<StatusName, boolean>
-  setBoilerLevel: Dispatch<SetStateAction<number>>;
+  setBoilerLevel: (level: number) => void;
   boilerLevel: number
   onStatusCheck: (id: StatusName) => void;
 }

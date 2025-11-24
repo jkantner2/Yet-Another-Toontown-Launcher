@@ -44,7 +44,7 @@ func main() {
 		Services: []application.Service{
 			application.NewService(&services.LoginService{}),
 			application.NewService(&services.CalculatorService{}),
-			application.NewService(&services.MutliService{}),
+			application.NewService(&services.MultiService{}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
