@@ -6,6 +6,7 @@ import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
+import dreamlandTheme from "./themes/DreamlandTheme";
 
 const container = document.getElementById("root");
 
@@ -13,7 +14,7 @@ const root = createRoot(container!);
 
 root.render(
   <React.StrictMode>
-    <MantineProvider defaultColorScheme="dark">
+    <MantineProvider defaultColorScheme="dark" theme={dreamlandTheme}>
       <Notifications />
       <App />
     </MantineProvider>

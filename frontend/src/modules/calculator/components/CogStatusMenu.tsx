@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { CogStatusMenuProps, Location, statuses } from "../logic/types";
 import { Box, Checkbox, Collapse, Divider, Group, Rating, Stack, Text } from "@mantine/core";
 import { IconChevronDownRight, IconChevronRight } from "@tabler/icons-react"
+import * as motion from "motion/react-client"
 
 const CogStatusMenu: React.FC<CogStatusMenuProps> = (
   { checkedStatuses, onStatusCheck, setBoilerLevel, boilerLevel },
@@ -37,21 +38,28 @@ const CogStatusMenu: React.FC<CogStatusMenuProps> = (
 
         return (
           <Box key={location}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
             <Group
               onClick={() => onToggleLocation(location)}
               align="center"
+              style={{ cursor: "pointer" }}
             >
               {expanded ? (
                 <IconChevronDownRight size={16} />
               ) : (
                 <IconChevronRight size={16} />
               )}
+
               <Text>{location}</Text>
 
               {location === "FieldOffice" && (
                 <Rating count={4} size="sm" onChange={setBoilerLevel} value={boilerLevel}/>
               )}
             </Group>
+            </motion.div>
 
             <Collapse in={expanded}>
               <Stack pl="lg" mt="xs">

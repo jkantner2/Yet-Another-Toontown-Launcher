@@ -1,35 +1,99 @@
-import { useState } from "react"
-// import { Mt_init, Mt_select_window, Mt_send_key, Mt_set_key_up, Mt_set_key_down } from "../../../bindings/YATL/services/multiservice"
-import { Box, Button } from "@mantine/core";
-import MultiToonSessionHolder from "./MultiToonSessionHolder";
-import { MTSession } from "./MultiToonTypes";
-// import { keyMap } from "./MultiToonTypes";
+import { Box, Button, Divider, Modal, Text, TextInput } from "@mantine/core";
+import MultiToonSessionHolder from "./components/MultiToonSessionHolder";
+import { MultiToonPageProps } from "./logic/MultiToonTypes"
+import { useState } from "react";
+import { useDisclosure } from "@mantine/hooks";
+import { IconDeviceFloppy, IconManualGearbox, IconPlus, IconQuestionMark, IconUserCog } from "@tabler/icons-react";
+import { FloatingButton } from "../../components/buttons";
+import { newProfile, saveProfiles } from "./logic/multiUtils";
+import { notifications } from "@mantine/notifications";
 
-const MultiToonPage: React.FC = () => {
-  const [_MTSessions, _setMTSessions] = useState<Array<MTSession>>([]);
+const MultiToonPage: React.FC<MultiToonPageProps> = ({ MTSessions, AddMTSession, AddMTProfile, yatlProfiles, EditMTProfile }: MultiToonPageProps) => {
+  const [opened, { open, close }] = useDisclosure(false);
+  const [profileName, setProfilename] = useState<string>("");
+  const profiles = yatlProfiles
 
+  const handleAddNewProfile = async () => {
+    const trimmedName = profileName.trim();
+    if (!trimmedName) return;
 
-  //
-  // const keyToPanda3DBind = (key: string) => {
-  //   key = key.trim()
-  //   if (/^[a-zA-Z0-9]$/.test(key)) {
-  //     return key;
-  //   }
-  //
-  //   if (key in keyMap) {
-  //     return keyMap[key];
-  //   }
-  //
-  //   return "invalid_key";
-  // }
+    if (yatlProfiles.some(p => p.name === trimmedName)) {
+      notifications.show({
+        title: "Error Creating Profile",
+        message: "Profile Name Already In Use",
+        color: 'red',
+      });
+      return;
+    }
+
+    const profile = await newProfile(trimmedName);
+
+    AddMTProfile(profile);
+    setProfilename("");
+    close();
+
+  }
 
   return (
     <>
-      <Box h={20}/>
-      <Button>New Profile</Button>
-      <MultiToonSessionHolder/>
+      <Box
+        pb={"1rem"}
+        style={{
+          display: "flex",
+          justifyContent: "space-between"
+        }}
+      >
+        <Box style={{ display: "flex" }}>
+          <Text pr={"0.4rem"}>Yet Another Toontown Launcher</Text>
+          <IconManualGearbox />
+        </Box>
+      </Box>
+      <Divider pb={"1rem"}/>
+      {profiles.map((profile) => {
+        return (
+          <Box pb={"0.5rem"} pt={"0.5rem"}>
+            <MultiToonSessionHolder profile={profile} EditMTProfile={EditMTProfile} />
+          </Box>
+        )
+      })}
+      <Modal
+        title={"New Multi-Toon Profile"}
+        opened={opened}
+        onClose={() => {
+          setProfilename("");
+          close()
+        }}
+        size={'lg'}
+      >
+        <TextInput
+          data-autofocus
+          value={profileName}
+          placeholder="Profile Name"
+          onChange={(e) => setProfilename(e.target.value)}
+          pb={"1.2rem"}
+        />
+        <Button
+          variant="light"
+          leftSection={<IconUserCog />}
+          onClick={handleAddNewProfile}
+        >
+          Create Profile
+        </Button>
+      </Modal>
+      <FloatingButton right={"14rem"} onClick={() => {}}>
+        <IconQuestionMark size="2.5rem"/>
+      </FloatingButton>
+
+      <FloatingButton right="8rem" onClick={async () => await saveProfiles(profiles)}>
+        <IconDeviceFloppy size="2.5rem" />
+      </FloatingButton>
+
+      <FloatingButton right="2rem" onClick={open}>
+        <IconPlus size="2.5rem" />
+      </FloatingButton>
     </>
   )
 }
+
 
 export default MultiToonPage

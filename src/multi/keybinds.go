@@ -38,10 +38,10 @@ func LoadKeyBindProfile(profileName string) map[string]string {
     return viper.GetStringMapString("keybindProfiles." + profileName)
 }
 
-func LoadAllKeyBindProfiles() map[string]string {
+func LoadAllKeyBindProfileNames() map[string]string {
 	var test = viper.GetStringMapString("keybindProfiles");
 	log.Info().Msg(createKeyValuePairs(test))
-	return nil;
+	return test;
 }
 
 func LoadTTRControls() (map[string]string, error) {

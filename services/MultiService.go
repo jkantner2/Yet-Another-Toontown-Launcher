@@ -56,3 +56,7 @@ func (g *MultiService) LoadTTRControls() map[string]string {
 func (g *MultiService) LoadMTProfile(name string) map[string]string {
 	return multi.LoadKeyBindProfile(name)
 }
+
+func (g *MultiService) LoadAllMTProfileNames() map[string]string {
+	return multi.LoadAllKeyBindProfileNames()
+}

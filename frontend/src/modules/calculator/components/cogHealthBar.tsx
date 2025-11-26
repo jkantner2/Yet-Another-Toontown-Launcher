@@ -2,6 +2,7 @@ import { Box } from "@mantine/core";
 import React from "react";
 import { CatppuccinColors } from "../../../themes/CatppuccinMocha";
 import { CogHealthBarProps } from "../logic/types";
+import dreamlandTheme from "../../../themes/DreamlandTheme";
 
 const CogHealthBar: React.FC<CogHealthBarProps> = ({ finalDamage, cogHealthModifier, tempDamage }) => {
   const levelValues: number[] = [
@@ -45,10 +46,8 @@ const CogHealthBar: React.FC<CogHealthBarProps> = ({ finalDamage, cogHealthModif
         display: 'flex',
         justifyContent: 'space-between',
         padding: 10,
-        backgroundColor: "#1c1c1c",
+        backgroundColor: dreamlandTheme.colors!.dark![9],
         borderRadius: 10,
-        border: "solid 1px",
-        borderColor: "#4c4c4c",
         boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)'
       }}
     >

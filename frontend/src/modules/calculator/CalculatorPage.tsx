@@ -10,6 +10,9 @@ import AccuracyBar from "./components/AccuracyBar.tsx";
 import { AttackAnalysis } from "../../../bindings/YATL/src/calculator/models.ts";
 import calcReducer, { CalcActionType, CalcState } from "./hooks/useCalculator.ts";
 import { addDamageNumbers, calculateAccuracy, calculateAnalyzedAttacks, getCogHealthModifier } from "./logic/calculatorUtils.ts";
+import * as motion from "motion/react-client"
+import { FloatingButton } from "../../components/buttons.tsx";
+import { IconQuestionMark } from "@tabler/icons-react";
 
 const Calculator: React.FC = () => {
   const [opened, { open, close }] = useDisclosure(false);
@@ -52,7 +55,7 @@ const Calculator: React.FC = () => {
 
   const handleGagMenuHover = async (gag: GagAttack) => {
     const tempGags = [...calcState.selectedGags, gag];
-    const result = await calculateAnalyzedAttacks({...calcState, selectedGags: tempGags})
+    const result = await calculateAnalyzedAttacks({ ...calcState, selectedGags: tempGags })
     const tempTotalDamage = addDamageNumbers(result)
     const tempTotalAccuracy = calculateAccuracy(result)
     setTempDamage(tempTotalDamage);
@@ -78,7 +81,7 @@ const Calculator: React.FC = () => {
       <Grid
         className="selected-gags"
         columns={14}
-        h={80}
+        h={75}
         justify="center"
         align="center"
         p='sm'
@@ -86,22 +89,27 @@ const Calculator: React.FC = () => {
         {calcState.selectedGags.map((gag, i) => {
           return (
             <Grid.Col span={2} key={i}>
-              <Button
-                variant="default"
-                fullWidth
-                h={50}
-                radius='md'
-                onContextMenu={(e) => {
-                  e.preventDefault()
-                }}
-                onClick={() => calcDispatch({ type: CalcActionType.REMOVE_GAG, gag})}
-                style={{
-                  background: gag.IsOrg ? CatppuccinColors.Green : CatppuccinColors.Blue,
-                  border: 0
-                }}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Image src={gag.Gag.Resource} height={40} width={40} fit="contain" />
-              </Button>
+                <Button
+                  variant="default"
+                  fullWidth
+                  h={50}
+                  radius='md'
+                  onContextMenu={(e) => {
+                    e.preventDefault()
+                  }}
+                  onClick={() => calcDispatch({ type: CalcActionType.REMOVE_GAG, gag })}
+                  style={{
+                    background: gag.IsOrg ? CatppuccinColors.Green : CatppuccinColors.Blue,
+                    border: 0
+                  }}
+                >
+                  <Image src={gag.Gag.Resource} height={40} width={40} fit="contain" draggable={false} />
+                </Button>
+              </motion.div>
             </Grid.Col>
           )
         })}
@@ -166,10 +174,13 @@ const Calculator: React.FC = () => {
         <CogStatusMenu
           checkedStatuses={calcState.checkedStatuses}
           onStatusCheck={(status: StatusName) => calcDispatch({ type: CalcActionType.TOGGLE_STATUS, status: status })}
-          setBoilerLevel={(level: number) => calcDispatch({ type: CalcActionType.SET_BOILER_LEVEL, level: level})}
+          setBoilerLevel={(level: number) => calcDispatch({ type: CalcActionType.SET_BOILER_LEVEL, level: level })}
           boilerLevel={calcState.boilerLevel}
         />
       </Drawer>
+      <FloatingButton right={"2rem"} onClick={() => {}}>
+        <IconQuestionMark size="2.5rem"/>
+      </FloatingButton>
     </div>
   );
 };

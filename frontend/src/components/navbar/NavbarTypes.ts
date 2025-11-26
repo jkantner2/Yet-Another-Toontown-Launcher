@@ -27,3 +27,8 @@ export const NavbarData = [
   { icon: IconPackage, label: 'Resource Packs', page: SidebarItems.ResourcePks},
   { icon: IconSettings, label: 'Settings', page: SidebarItems.Settings},
 ]
+
+export type NavbarProps = {
+  selectedPage: SidebarItems;
+  setSelectedPage: (page: SidebarItems) => void;
+};
