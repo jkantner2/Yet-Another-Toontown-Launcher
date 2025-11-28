@@ -97,12 +97,12 @@ func (s *Session) SendKey(window uint64, key string) error {
 	return nil
 }
 
-func (s *Session) GetWindowFromPID(pid int) (int, error) {
+func (s *Session) GetWindowFromPID(pid int) C.uint64_t {
 	if s == nil || s.ptr == nil {
-		return -1, errors.New("session is nil")
+		return 0
 	}
 
 	window := C.mtlib_get_window_from_pid(s.ptr, C.int(pid))
-	log.Info().Msg(fmt.Sprintf("Window: %d, pid: %d", int(window), pid))
-	return int(window), nil
+	log.Info().Msg(fmt.Sprintf("Window: %d, pid: %d", window, pid))
+	return window
 }

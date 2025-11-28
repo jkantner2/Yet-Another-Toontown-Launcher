@@ -57,17 +57,24 @@ export default function YATLReducer(state: YATLState, action: YATLAction): YATLS
     case YATLActionType.REMOVE_PID: {
       if (action.pid === -1) return state;
 
+      let removedUser: string = ""
       const updatedProcessIDs = { ...state.processIDs };
       for (const [username, pid] of Object.entries(updatedProcessIDs)) {
         if (pid === action.pid) {
           updatedProcessIDs[username] = -1;
+          removedUser = username
           break;
         }
       }
 
+      const updatedMTSession = state.MTSessions.filter(
+        (session) => session.attatchedUser !== removedUser
+      );
+
       return {
         ...state,
         processIDs: updatedProcessIDs,
+        MTSessions: updatedMTSession,
       };
     }
     case YATLActionType.ADD_MT_SESSION: {
@@ -86,6 +93,7 @@ export default function YATLReducer(state: YATLState, action: YATLAction): YATLS
       }
     }
     case YATLActionType.EDIT_MT_PROFILE: {
+      console.log('REDUCER EDIT_MT_PROFILE action.profile=', action.profile);
       return {
         ...state,
         MTSessions: state.MTSessions.map((session) =>

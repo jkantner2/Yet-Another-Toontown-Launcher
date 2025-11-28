@@ -1,6 +1,6 @@
 export interface MTProfile {
   name: string,
-  autoAttatchProfiles: string[];
+  autoAttatchAccounts: string[];
   keyMap: Record<string, string>
 }
 
@@ -17,6 +17,7 @@ export type MultiToonPageProps = {
   AddMTProfile: (profile: MTProfile) => void;
   EditMTProfile: (profile: MTProfile) => void;
   yatlProfiles: MTProfile[];
+  accounts: string[];
 }
 
 export const groups: Record<string, string[]> = {

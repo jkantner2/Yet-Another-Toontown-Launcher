@@ -86,7 +86,7 @@ const AccountItem: React.FC<AccountItemProps> = ({ username, handlePlay, process
                 size="xs"
                 color={CatppuccinColors.Blue}
                 leftSection={<IconPlayerPlay size={"1rem"} color={CatppuccinColors.Mantle} />}
-                onClick={() => handlePlay(username)}
+                onClick={() => void handlePlay(username)}
               >
                 <Text c={CatppuccinColors.Mantle} fw={600}>Play</Text>
               </Button>

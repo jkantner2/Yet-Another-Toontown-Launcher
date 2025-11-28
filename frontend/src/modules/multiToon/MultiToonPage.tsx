@@ -7,9 +7,8 @@ import { IconDeviceFloppy, IconManualGearbox, IconPlus, IconQuestionMark, IconUs
 import { FloatingButton } from "../../components/buttons";
 import { newProfile, saveProfiles } from "./logic/multiUtils";
 import { notifications } from "@mantine/notifications";
-import InputWindow from "./components/inputWindow";
 
-const MultiToonPage: React.FC<MultiToonPageProps> = ({ MTSessions, AddMTSession, AddMTProfile, yatlProfiles, EditMTProfile }: MultiToonPageProps) => {
+const MultiToonPage: React.FC<MultiToonPageProps> = ({ MTSessions, AddMTSession, AddMTProfile, yatlProfiles, EditMTProfile, accounts }: MultiToonPageProps) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [profileName, setProfilename] = useState<string>("");
   const profiles = yatlProfiles
@@ -52,7 +51,13 @@ const MultiToonPage: React.FC<MultiToonPageProps> = ({ MTSessions, AddMTSession,
       {profiles.map((profile) => {
         return (
           <Box pb={"0.5rem"} pt={"0.5rem"}>
-            <MultiToonSessionHolder profile={profile} EditMTProfile={EditMTProfile} addMTSession={AddMTSession} yatlSessions={MTSessions} />
+            <MultiToonSessionHolder
+              profile={profile}
+              EditMTProfile={EditMTProfile}
+              addMTSession={AddMTSession}
+              yatlSessions={MTSessions}
+              accounts={accounts}
+            />
           </Box>
         )
       })}
@@ -91,7 +96,6 @@ const MultiToonPage: React.FC<MultiToonPageProps> = ({ MTSessions, AddMTSession,
       <FloatingButton right="2rem" onClick={open}>
         <IconPlus size="2.5rem" />
       </FloatingButton>
-      <InputWindow yatlSessions={MTSessions}/>
     </>
   )
 }

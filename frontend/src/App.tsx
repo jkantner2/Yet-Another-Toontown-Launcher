@@ -11,10 +11,11 @@ import MultiToonPage from "./modules/multiToon/MultiToonPage.tsx";
 import Navbar from "./components/navbar/NavbarLink.tsx";
 import YATLReducer, { YATLActionType, YATLState } from "./state.ts";
 import { MTProfile, MTSession } from "./modules/multiToon/logic/MultiToonTypes.ts";
-import { LoadAllMTProfileNames, LoadMTProfile } from "../bindings/YATL/services/multiservice.ts";
+import { LoadAllMTProfiles, Mt_get_window_from_pid, Mt_init } from "../bindings/YATL/services/multiservice.ts";
 import dreamlandTheme from "./themes/DreamlandTheme.ts";
-import { createSessionForUser, initTTRKeys } from "./modules/multiToon/logic/multiUtils.ts";
+import { initTTRKeys } from "./modules/multiToon/logic/multiUtils.ts";
 import { Events } from "@wailsio/runtime";
+import InputWindow from "./modules/multiToon/components/inputWindow.tsx";
 
 const ComingSoonPage: React.FC<{ title: string }> = ({ title }) => (
   <div>{title} Page (coming soon)</div>
@@ -48,14 +49,19 @@ const App: React.FC = () => {
     };
 
     const fetchKeyBinds = async () => {
-      const rawNames = await LoadAllMTProfileNames();
-      const profileNames = Object.keys(rawNames);
+      const rawProfiles = await LoadAllMTProfiles();
 
-      for (const name of profileNames) {
-        const keys = await LoadMTProfile(name)
-        yatlDispatch({ type: YATLActionType.ADD_MT_PROFILE, profile: { name: name, keyMap: keys, autoAttatchProfiles: [] } })
+      for (const [name, profile] of Object.entries(rawProfiles)) {
+        yatlDispatch({
+          type: YATLActionType.ADD_MT_PROFILE,
+          profile: {
+            name,
+            keyMap: profile.KeyMap || {},
+            autoAttatchAccounts: profile.AutoAttatchAccounts || [],
+          },
+        });
       }
-    }
+    };
 
     const fetchTTRBinds = async () => {
       await initTTRKeys();
@@ -80,20 +86,36 @@ const App: React.FC = () => {
     };
   }, []);
 
+  const delay = (ms: number | undefined) => new Promise(res => setTimeout(res, ms));
+
+  const tryToAttatchUsers = async (pid: number, username: string) => {
+    let newSession = await Mt_init();
+
+    for (const profile of yatlState.MTProfiles) {
+      if (profile.autoAttatchAccounts.includes(username)) {
+        let retries = 0;
+        let w = 0;
+
+        while (w === 0 && retries < 20) {
+          w = await Mt_get_window_from_pid(newSession, pid);
+
+          if (w !== 0) {
+            const session: MTSession = { mt_session: newSession, window: w, profile: profile, attatchedUser: username }
+            yatlDispatch({ type: YATLActionType.ADD_MT_SESSION, session: session })
+          }
+
+          retries++;
+          await delay(500);
+        }
+      }
+    }
+  };
 
   const handlePlay = async (username: string) => {
     const pid = await Login(username);
     yatlDispatch({ type: YATLActionType.ADD_PID, pid: pid, username: username })
+    await tryToAttatchUsers(pid, username);
   };
-
-  useEffect(() => {
-    const pid = yatlState.processIDs["fogey89"];
-    if (pid !== undefined && pid !== -1) {
-      createSessionForUser(yatlState.processIDs, yatlState.MTProfiles[0], "fogey89")
-        .then(session => yatlDispatch({ type: YATLActionType.ADD_MT_SESSION, session }));
-    }
-  }, [yatlState.processIDs]);
-
 
   const renderPage = (): JSX.Element => {
     switch (selectedPage) {
@@ -109,6 +131,7 @@ const App: React.FC = () => {
         return <Calculator />;
       case SidebarItems.MultiToon:
         return <MultiToonPage
+          accounts={yatlState.accounts}
           MTSessions={yatlState.MTSessions}
           yatlProfiles={yatlState.MTProfiles}
           AddMTSession={(session: MTSession) => yatlDispatch({ type: YATLActionType.ADD_MT_SESSION, session: session })}
@@ -141,6 +164,7 @@ const App: React.FC = () => {
       <AppShell.Main>
         {renderPage()}
       </AppShell.Main>
+      <InputWindow yatlSessions={yatlState.MTSessions} />
     </AppShell>
   );
 };

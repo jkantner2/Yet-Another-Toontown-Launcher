@@ -1,10 +1,9 @@
 import { notifications } from "@mantine/notifications";
-import { LoadTTRControls, Mt_get_window_grom_pid, Mt_init, Mt_select_window, Mt_set_key_down, Mt_set_key_up, SaveMTProfile } from "../../../../bindings/YATL/services/multiservice";
+import { LoadTTRControls, Mt_init, Mt_select_window, Mt_set_key_down, Mt_set_key_up, SaveMTProfile } from "../../../../bindings/YATL/services/multiservice";
 import { MTProfile, MTSession } from "./MultiToonTypes";
 
 let ttrKeys: Record<string, string> = {};
 
-// async initialization function
 export async function initTTRKeys(): Promise<void> {
   ttrKeys = await LoadTTRControls();
 }
@@ -17,10 +16,11 @@ export async function newProfile(profile_name: string): Promise<MTProfile> {
   return {
     name: profile_name,
     keyMap: keys,
-    autoAttatchProfiles: [],
+    autoAttatchAccounts: [],
   }
+}
 
-} function getActionForKey(profileKeyMap: Record<string, string>, pressedKey: string): string | undefined {
+function getActionForKey(profileKeyMap: Record<string, string>, pressedKey: string): string | undefined {
   return Object.entries(profileKeyMap).find(([, key]) => key === pressedKey)?.[0];
 }
 
@@ -40,13 +40,13 @@ function getPanda3DBindFromProfileKey(profileKey: string, profileKeyMap: Record<
 
 export async function saveProfiles(profiles: MTProfile[]): Promise<void> {
   for (const profile of profiles) {
-    await SaveMTProfile(profile.name, profile.keyMap)
+    await SaveMTProfile(profile.name, {KeyMap: profile.keyMap, Name: profile.name, AutoAttatchAccounts: profile.autoAttatchAccounts})
   }
   notifications.show({ title: "Saving Profiles", message: "to YATL config" })
 }
 
 export async function saveProfile(profile: MTProfile): Promise<void> {
-  await SaveMTProfile(profile.name, profile.keyMap)
+  await SaveMTProfile(profile.name, {KeyMap: profile.keyMap, Name: profile.name, AutoAttatchAccounts: profile.autoAttatchAccounts})
   notifications.show({ title: `Saving Profile ${profile.name}`, message: `to YATL config` })
 }
 
@@ -69,24 +69,5 @@ export async function createSessionWithClick(profile: MTProfile): Promise<MTSess
   const window = await Mt_select_window(session_id);
   const session: MTSession = { mt_session: session_id, window: window, profile: profile, attatchedUser: "" }
   notifications.show({ title: `${window}`, message: `${session.profile.name}` })
-  return session
-}
-
-export async function createSessionForUser(processIDs: Record<string, number>, profile: MTProfile, user: string): Promise<MTSession> {
-  const session_id = await Mt_init();
-  const session: MTSession = { mt_session: session_id, window: 0, profile: profile, attatchedUser: user}
-
-  const pid = processIDs[user]
-
-  notifications.show({title: "PID for user", message: `${pid}`})
-  if (pid === undefined || pid === -1) {
-    return session
-  }
-
-  const w = await Mt_get_window_grom_pid(session.mt_session, pid)
-  session.window = w
-
-  notifications.show({title: "window for user", message: `${w}`})
-
   return session
 }

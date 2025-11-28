@@ -37,22 +37,22 @@ func (g *MultiService) Mt_set_key_down(id uint8, window uint64, key string) {
 	GetSession(id).SetKeyDown(window, key)
 }
 
-func (g *MultiService) Mt_get_window_grom_pid(id uint8, pid int) int {
-	window, err := GetSession(id).GetWindowFromPID(pid)
+func (g *MultiService) Mt_get_window_from_pid(id uint8, pid int) uint64 {
+	window := GetSession(id).GetWindowFromPID(pid)
 
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to get window from PID")
+	if window == 0 {
+		log.Error().Msg("Failed to get window from PID")
 	}
 
-	return window
+	return uint64(window)
 }
 
 func (g *MultiService) Mt_shutdown(id uint8) {
 	RemoveSession(id)
 }
 
-func (g *MultiService) SaveMTProfile(name string, profile map[string]string) {
-	multi.SaveKeyBindProfile(name, profile)
+func (g *MultiService) SaveMTProfile(name string, profile multi.MTProfile) {
+	multi.SaveMTProfile(name, profile)
 }
 
 func (g *MultiService) LoadTTRControls() map[string]string {
@@ -60,15 +60,13 @@ func (g *MultiService) LoadTTRControls() map[string]string {
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to load ttr controls")
 	}
-
 	return controls
 }
 
-func (g *MultiService) LoadMTProfile(name string) map[string]string {
-	return multi.LoadKeyBindProfile(name)
+func (g *MultiService) LoadMTProfile(name string) multi.MTProfile {
+	return multi.LoadMTProfile(name)
 }
 
-func (g *MultiService) LoadAllMTProfileNames() map[string]string {
-	return multi.LoadAllKeyBindProfileNames()
+func (g *MultiService) LoadAllMTProfiles() map[string]multi.MTProfile {
+	return multi.LoadAllMTProfiles()
 }
-

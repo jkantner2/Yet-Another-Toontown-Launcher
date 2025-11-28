@@ -7,20 +7,30 @@ import dreamlandTheme from "../../../themes/DreamlandTheme"
 import { CatppuccinColors } from "../../../themes/CatppuccinMocha"
 import { createSessionWithClick } from "../logic/multiUtils"
 import { notifications } from "@mantine/notifications"
+import AttatchMenu from "./attatchMenu"
 
 export type MultiToonSessionHolderProps = {
-  profile: MTProfile
-  yatlSessions: MTSession[]
+  profile: MTProfile;
+  yatlSessions: MTSession[];
+  accounts: string[];
   EditMTProfile: (profile: MTProfile) => void;
   addMTSession: (session: MTSession) => void;
 }
 
-const MultiToonSessionHolder: React.FC<MultiToonSessionHolderProps> = ({ profile, EditMTProfile, addMTSession, yatlSessions }: MultiToonSessionHolderProps) => {
+const MultiToonSessionHolder: React.FC<MultiToonSessionHolderProps> = ({ profile, EditMTProfile, addMTSession, yatlSessions, accounts }: MultiToonSessionHolderProps) => {
   const [opened, { open, close }] = useDisclosure(false);
+  const [attatchedModalOpened, attatchedModal] = useDisclosure(false);
   const sessions = yatlSessions;
+  var connectedSessions = 0;
   const isSessionConnected = sessions.some((session) => {
     return session.profile.name === profile.name
   })
+
+  for (const session of sessions) {
+    if (session.profile.name === profile.name) {
+      connectedSessions++
+    }
+  }
 
   const handleConnectSession = async () => {
     const session: MTSession = await createSessionWithClick(profile)
@@ -58,11 +68,12 @@ const MultiToonSessionHolder: React.FC<MultiToonSessionHolderProps> = ({ profile
             color={isSessionConnected ? CatppuccinColors.Green : CatppuccinColors.Blue}
             onClick={handleConnectSession}
           >
-            <Text c={CatppuccinColors.Mantle} fw={600}>{isSessionConnected ? "Connected" : "Connect Session"}</Text>
+            <Text c={CatppuccinColors.Mantle} fw={600}>{isSessionConnected ? `${connectedSessions} Connected` : `Connect Session`}</Text>
           </Button>
           <Button
             size="xs"
             color={CatppuccinColors.Blue}
+            onClick={attatchedModal.open}
             leftSection={<IconLink size={"1rem"} color={CatppuccinColors.Mantle} />}
           >
             <Text c={CatppuccinColors.Mantle} fw={600}>Attatch Profile</Text>
@@ -85,6 +96,9 @@ const MultiToonSessionHolder: React.FC<MultiToonSessionHolderProps> = ({ profile
       </Box >
       <Modal size='lg' opened={opened} onClose={close} title={profile.name + " Key Binds"}>
         {<KeybindButtons profile={profile} EditMTProfile={EditMTProfile} />}
+      </Modal>
+      <Modal size={'lg'} opened={attatchedModalOpened} onClose={attatchedModal.close} title={`Attatching Profile: ${profile.name}`}>
+        <AttatchMenu accounts={accounts} EditMTProfile={EditMTProfile} profile={profile}/>
       </Modal>
     </>
   )
