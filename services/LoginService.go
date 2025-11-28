@@ -2,8 +2,6 @@ package services
 
 import (
 	"YATL/src/login"
-	"os"
-	"syscall"
 )
 
 type LoginService struct{}
@@ -24,14 +22,4 @@ func (g *LoginService) SaveAccount(username string, password string) int {
 
 func (g *LoginService) GetAllAccounts() []string {
 	return login.GetAllAccounts()
-}
-
-func (g *LoginService) IsProcessRunning(pid int) bool {
-	process, err := os.FindProcess(pid)
-	if err != nil {
-		return false
-	}
-
-	err = process.Signal(syscall.Signal(0))
-	return err == nil
 }

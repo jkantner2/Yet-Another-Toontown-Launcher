@@ -9,11 +9,12 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 	"runtime"
 	"strings"
 
 	"github.com/rs/zerolog/log"
+	"github.com/wailsapp/wails/v3/pkg/application"
 
 	"YATL/src/patcher"
 )
@@ -154,46 +155,58 @@ func handleLoginSuccess(resp *TTRResponse) int {
 
 	// Now we're ready to try and play
 	go func() {
-		err := <-done
 		binary := getBinaryName()
 		installDir, err := patcher.GetInstallDirByOS()
 		if err != nil {
-			log.Error().
-				Err(err).
-				Msg("Failed to get install directory when launching game")
-			errChan <- fmt.Errorf("Failed to launch ttr")
+			log.Error().Err(err).Msg("Failed to get install directory when launching game")
+			errChan <- fmt.Errorf("Failed to launch TTR")
 			return
 		}
 
-		binaryPath := path.Join(installDir, binary)
+		binaryPath := filepath.Join(installDir, binary)
 
-		// setup command off binary
+		// Setup command
 		gameServerEnv := "TTR_GAMESERVER=" + resp.Gameserver
 		playerCookie := "TTR_PLAYCOOKIE=" + resp.Cookie
 
 		ttr := exec.Command(binaryPath)
 		ttr.Dir = installDir
-		ttr.Env = append(os.Environ(),
-			gameServerEnv,
-			playerCookie)
-		// statusLabel.SetText(fmt.Sprintf("Have fun in Toontown!"))
+		ttr.Env = append(os.Environ(), gameServerEnv, playerCookie)
 		ttr.Stdout = os.Stdout
 		ttr.Stderr = os.Stderr
 
 		log.Info().Msg("Launching TTR instance...")
-		err = ttr.Start()
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to Launch TTR")
+		if err := ttr.Start(); err != nil {
+			log.Error().Err(err).Msg("Failed to launch TTR")
 			errChan <- fmt.Errorf("Failed to launch TTR")
+			return
 		}
+
+		// Send PID immediately
+		pid := ttr.Process.Pid
 		pidChan <- ttr.Process.Pid
+
+		// Reap process asynchronously to avoid zombies
+		go func(cmd *exec.Cmd, pid int) {
+			err := cmd.Wait()
+			if err != nil {
+				log.Warn().Err(err).Msg("TTR process exited with error")
+			} else {
+				log.Info().Msg("TTR process exited cleanly")
+			}
+			// TODO: notify app to remove PID from state if needed
+			app := application.Get()
+			app.Event.Emit("common:PID-killed", map[string]int{"pid": pid})
+			log.Info().Msg(fmt.Sprintf("PID KILLED: %d", pid))
+		}(ttr, pid)
 	}()
 
+	// Wait for either PID or error
 	select {
 	case pid := <-pidChan:
 		return pid
 	case err := <-errChan:
-		log.Error().Err(err).Msg("Failed To launch TTR (at select)")
+		log.Error().Err(err).Msg("Failed to launch TTR (at select)")
 		return -1
 	}
 }

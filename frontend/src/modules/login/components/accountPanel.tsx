@@ -1,5 +1,5 @@
 import { Box, Button, Group, Text } from "@mantine/core";
-import { IconCircleArrowUp, IconGripVertical, IconPlayerPlay, IconTrash } from "@tabler/icons-react";
+import { IconCircleArrowUp, IconGripVertical, IconPlayerPlay, IconRefresh, IconTrash } from "@tabler/icons-react";
 import { Reorder, useDragControls } from "framer-motion"
 import { useEffect, useState } from "react";
 import * as motion from "motion/react-client"
@@ -9,11 +9,12 @@ import { CatppuccinColors } from "../../../themes/CatppuccinMocha";
 type AccountPanelProps = {
   handlePlay: (username: string) => Promise<void>;
   accounts: string[];
+  processIDs: Record<string, number>;
 }
 
-const AccountPanel: React.FC<AccountPanelProps> = ({ handlePlay, accounts }: AccountPanelProps) => {
-  const [localAccounts, setLocalAccounts] = useState(accounts);
 
+const AccountPanel: React.FC<AccountPanelProps> = ({ handlePlay, accounts, processIDs }: AccountPanelProps) => {
+  const [localAccounts, setLocalAccounts] = useState(accounts);
   useEffect(() => {
     setLocalAccounts(accounts);
   }, [accounts]);
@@ -22,7 +23,7 @@ const AccountPanel: React.FC<AccountPanelProps> = ({ handlePlay, accounts }: Acc
   return (
     <Reorder.Group axis="y" values={localAccounts} onReorder={setLocalAccounts} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {localAccounts.map((username) => (
-        <AccountItem key={username} username={username} handlePlay={handlePlay} />
+        <AccountItem username={username} handlePlay={handlePlay} processIDs={processIDs} key={`${username}-${processIDs[username] ?? 0}`} />
       ))}
     </Reorder.Group>
   );
@@ -31,15 +32,18 @@ const AccountPanel: React.FC<AccountPanelProps> = ({ handlePlay, accounts }: Acc
 type AccountItemProps = {
   username: string;
   handlePlay: (username: string) => Promise<void>;
+  processIDs: Record<string, number>;
 };
 
-const AccountItem: React.FC<AccountItemProps> = ({ username, handlePlay }) => {
+const AccountItem: React.FC<AccountItemProps> = ({ username, handlePlay, processIDs }) => {
   const controls = useDragControls();
   const [isDragging, setIsDragging] = useState(false);
 
+  const isPlaying = processIDs[username] >= 0;
+
   return (
     <motion.div
-      whileTap={isDragging ? {scale: 1.01} : {scale: 1}}
+      whileTap={isDragging ? { scale: 1.01 } : { scale: 1 }}
     >
       <Box pb={5}>
         <Reorder.Item
@@ -69,28 +73,36 @@ const AccountItem: React.FC<AccountItemProps> = ({ username, handlePlay }) => {
           </Text>
 
           <Group>
+            {(isPlaying) ?
+              <Button
+                size="xs"
+                color={CatppuccinColors.Green}
+                leftSection={<IconRefresh size={"1rem"} color={CatppuccinColors.Mantle} />}
+                onClick={() => {}}
+              >
+                <Text c={CatppuccinColors.Mantle} fw={600}>Restart</Text>
+              </Button> :
+              <Button
+                size="xs"
+                color={CatppuccinColors.Blue}
+                leftSection={<IconPlayerPlay size={"1rem"} color={CatppuccinColors.Mantle} />}
+                onClick={() => handlePlay(username)}
+              >
+                <Text c={CatppuccinColors.Mantle} fw={600}>Play</Text>
+              </Button>
+            }
             <Button
+              color={CatppuccinColors.Blue}
               size="xs"
-              color="#89b4fa"
-              leftSection={<IconPlayerPlay size={"1rem"} color={CatppuccinColors.Mantle}/>}
-              onClick={() => handlePlay(username)}
-            >
-              <Text c={CatppuccinColors.Mantle} fw={600}>Play</Text>
-            </Button>
-
-            <Button
-              color="#89b4fa"
-              size="xs"
-              leftSection={<IconCircleArrowUp size={"1rem"} color={CatppuccinColors.Mantle}/>}
+              leftSection={<IconCircleArrowUp size={"1rem"} color={CatppuccinColors.Mantle} />}
             >
               <Text c={CatppuccinColors.Mantle} fw={600}>Sync</Text>
             </Button>
             <Button
               size="xs"
-              color="#f38ba8"
-              leftSection={<IconTrash size={"1rem"} color={CatppuccinColors.Mantle}/>}
+              color={CatppuccinColors.Red}
             >
-              <Text c={CatppuccinColors.Mantle} fw={600}>Delete</Text>
+              <IconTrash size={"1rem"} color={CatppuccinColors.Mantle} />
             </Button>
           </Group>
         </Reorder.Item>

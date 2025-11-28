@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/rs/zerolog/log"
@@ -22,6 +23,8 @@ import (
 type Session struct {
 	ptr *C.mtlib_session_t
 }
+
+var multiLock sync.Mutex
 
 func Init() (*Session, error) {
 	mtlib_pointer := C.mtlib_init()
@@ -53,16 +56,16 @@ func (s *Session) SelectWindow() C.uint64_t {
 	if s == nil || s.ptr == nil {
 		return 0
 	}
-	log.Info().Msg(fmt.Sprintf("session ptr: %p\n", s.ptr))
 	window := C.mtlib_select_window(s.ptr)
 	return window
 }
 
 func (s *Session) SetKeyDown(window uint64, key string) error {
+	multiLock.Lock()
+	defer multiLock.Unlock()
 	if s == nil || s.ptr == nil {
 		return errors.New("session is nil")
 	}
-	log.Info().Msg(fmt.Sprintf("session ptr: %p\n", s.ptr))
 
 	cs := C.CString(key)
 	defer C.free(unsafe.Pointer(cs))
@@ -71,10 +74,11 @@ func (s *Session) SetKeyDown(window uint64, key string) error {
 }
 
 func (s *Session) SetKeyUp(window uint64, key string) error {
+	multiLock.Lock()
+	defer multiLock.Unlock()
 	if s == nil || s.ptr == nil {
 		return errors.New("session is nil")
 	}
-	log.Info().Msg(fmt.Sprintf("session ptr: %p\n", s.ptr))
 
 	cs := C.CString(key)
 	defer C.free(unsafe.Pointer(cs))
@@ -86,10 +90,19 @@ func (s *Session) SendKey(window uint64, key string) error {
 	if s == nil || s.ptr == nil {
 		return errors.New("session is nil")
 	}
-	log.Info().Msg(fmt.Sprintf("session ptr: %p\n", s.ptr))
 
 	cs := C.CString(key)
 	defer C.free(unsafe.Pointer(cs))
 	C.mtlib_send_key(s.ptr, C.uint64_t(window), cs)
 	return nil
+}
+
+func (s *Session) GetWindowFromPID(pid int) (int, error) {
+	if s == nil || s.ptr == nil {
+		return -1, errors.New("session is nil")
+	}
+
+	window := C.mtlib_get_window_from_pid(s.ptr, C.int(pid))
+	log.Info().Msg(fmt.Sprintf("Window: %d, pid: %d", int(window), pid))
+	return int(window), nil
 }

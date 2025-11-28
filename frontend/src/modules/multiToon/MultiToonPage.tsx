@@ -7,6 +7,7 @@ import { IconDeviceFloppy, IconManualGearbox, IconPlus, IconQuestionMark, IconUs
 import { FloatingButton } from "../../components/buttons";
 import { newProfile, saveProfiles } from "./logic/multiUtils";
 import { notifications } from "@mantine/notifications";
+import InputWindow from "./components/inputWindow";
 
 const MultiToonPage: React.FC<MultiToonPageProps> = ({ MTSessions, AddMTSession, AddMTProfile, yatlProfiles, EditMTProfile }: MultiToonPageProps) => {
   const [opened, { open, close }] = useDisclosure(false);
@@ -31,7 +32,6 @@ const MultiToonPage: React.FC<MultiToonPageProps> = ({ MTSessions, AddMTSession,
     AddMTProfile(profile);
     setProfilename("");
     close();
-
   }
 
   return (
@@ -48,11 +48,11 @@ const MultiToonPage: React.FC<MultiToonPageProps> = ({ MTSessions, AddMTSession,
           <IconManualGearbox />
         </Box>
       </Box>
-      <Divider pb={"1rem"}/>
+      <Divider pb={"1rem"} />
       {profiles.map((profile) => {
         return (
           <Box pb={"0.5rem"} pt={"0.5rem"}>
-            <MultiToonSessionHolder profile={profile} EditMTProfile={EditMTProfile} />
+            <MultiToonSessionHolder profile={profile} EditMTProfile={EditMTProfile} addMTSession={AddMTSession} yatlSessions={MTSessions} />
           </Box>
         )
       })}
@@ -80,8 +80,8 @@ const MultiToonPage: React.FC<MultiToonPageProps> = ({ MTSessions, AddMTSession,
           Create Profile
         </Button>
       </Modal>
-      <FloatingButton right={"14rem"} onClick={() => {}}>
-        <IconQuestionMark size="2.5rem"/>
+      <FloatingButton right={"14rem"} onClick={() => { }}>
+        <IconQuestionMark size="2.5rem" />
       </FloatingButton>
 
       <FloatingButton right="8rem" onClick={async () => await saveProfiles(profiles)}>
@@ -91,6 +91,7 @@ const MultiToonPage: React.FC<MultiToonPageProps> = ({ MTSessions, AddMTSession,
       <FloatingButton right="2rem" onClick={open}>
         <IconPlus size="2.5rem" />
       </FloatingButton>
+      <InputWindow yatlSessions={MTSessions}/>
     </>
   )
 }

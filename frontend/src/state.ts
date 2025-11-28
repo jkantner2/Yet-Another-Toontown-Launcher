@@ -55,14 +55,20 @@ export default function YATLReducer(state: YATLState, action: YATLAction): YATLS
       }
     }
     case YATLActionType.REMOVE_PID: {
+      if (action.pid === -1) return state;
+
+      const updatedProcessIDs = { ...state.processIDs };
+      for (const [username, pid] of Object.entries(updatedProcessIDs)) {
+        if (pid === action.pid) {
+          updatedProcessIDs[username] = -1;
+          break;
+        }
+      }
+
       return {
         ...state,
-        processIDs: Object.fromEntries(
-          Object.entries(state.processIDs).filter(
-            ([, pid]) => pid !== action.pid
-          )
-        ),
-      }
+        processIDs: updatedProcessIDs,
+      };
     }
     case YATLActionType.ADD_MT_SESSION: {
       return {

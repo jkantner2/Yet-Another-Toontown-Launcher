@@ -57,7 +57,7 @@ const LoginPage: React.FC<LoginProps> = ({
         />
       </Box>
       <Divider />
-      <AccountPanel handlePlay={handlePlay} accounts={accounts} />
+      <AccountPanel handlePlay={handlePlay} accounts={accounts} processIDs={processIDs} />
       <FloatingButton right={"8rem"} onClick={() => {}}>
         <IconQuestionMark size="2.5rem"/>
       </FloatingButton>

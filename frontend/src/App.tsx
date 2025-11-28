@@ -13,6 +13,8 @@ import YATLReducer, { YATLActionType, YATLState } from "./state.ts";
 import { MTProfile, MTSession } from "./modules/multiToon/logic/MultiToonTypes.ts";
 import { LoadAllMTProfileNames, LoadMTProfile } from "../bindings/YATL/services/multiservice.ts";
 import dreamlandTheme from "./themes/DreamlandTheme.ts";
+import { createSessionForUser, initTTRKeys } from "./modules/multiToon/logic/multiUtils.ts";
+import { Events } from "@wailsio/runtime";
 
 const ComingSoonPage: React.FC<{ title: string }> = ({ title }) => (
   <div>{title} Page (coming soon)</div>
@@ -32,6 +34,7 @@ const App: React.FC = () => {
 
   const [yatlState, yatlDispatch] = useReducer(YATLReducer, initialYatlState)
 
+
   useEffect(() => {
     const fetchAccounts = async () => {
       const allAccounts = await GetAllAccounts();
@@ -50,19 +53,47 @@ const App: React.FC = () => {
 
       for (const name of profileNames) {
         const keys = await LoadMTProfile(name)
-        yatlDispatch({ type: YATLActionType.ADD_MT_PROFILE, profile: {name: name, keyMap: keys}})
+        yatlDispatch({ type: YATLActionType.ADD_MT_PROFILE, profile: { name: name, keyMap: keys, autoAttatchProfiles: [] } })
       }
     }
+
+    const fetchTTRBinds = async () => {
+      await initTTRKeys();
+    }
+
     fetchAccounts();
     fetchKeyBinds();
+    fetchTTRBinds();
+  }, []);
+
+  useEffect(() => {
+    const removePID = (event: { data: { pid: number } }) => {
+      const pid = event.data?.[0]?.pid;
+      if (pid == null) return;
+      yatlDispatch({ type: YATLActionType.REMOVE_PID, pid });
+    };
+
+    Events.On("common:PID-killed", removePID);
+
+    return () => {
+      Events.Off("common:PID-killed");
+    };
   }, []);
 
 
-  // TODO: Add PID heartbeaT
   const handlePlay = async (username: string) => {
     const pid = await Login(username);
     yatlDispatch({ type: YATLActionType.ADD_PID, pid: pid, username: username })
   };
+
+  useEffect(() => {
+    const pid = yatlState.processIDs["fogey89"];
+    if (pid !== undefined && pid !== -1) {
+      createSessionForUser(yatlState.processIDs, yatlState.MTProfiles[0], "fogey89")
+        .then(session => yatlDispatch({ type: YATLActionType.ADD_MT_SESSION, session }));
+    }
+  }, [yatlState.processIDs]);
+
 
   const renderPage = (): JSX.Element => {
     switch (selectedPage) {
@@ -81,8 +112,8 @@ const App: React.FC = () => {
           MTSessions={yatlState.MTSessions}
           yatlProfiles={yatlState.MTProfiles}
           AddMTSession={(session: MTSession) => yatlDispatch({ type: YATLActionType.ADD_MT_SESSION, session: session })}
-          AddMTProfile={(profile: MTProfile) => yatlDispatch({ type: YATLActionType.ADD_MT_PROFILE, profile: profile})}
-          EditMTProfile={(profile: MTProfile) => yatlDispatch({ type: YATLActionType.EDIT_MT_PROFILE, profile: profile})}
+          AddMTProfile={(profile: MTProfile) => yatlDispatch({ type: YATLActionType.ADD_MT_PROFILE, profile: profile })}
+          EditMTProfile={(profile: MTProfile) => yatlDispatch({ type: YATLActionType.EDIT_MT_PROFILE, profile: profile })}
         />;
       case SidebarItems.Suits:
         return <ComingSoonPage title="Cog Suits" />;
@@ -104,9 +135,9 @@ const App: React.FC = () => {
         width: { base: 80, md: 80, lg: 80 },
         breakpoint: "sm",
       }}
-      style={{ background: dreamlandTheme.colors!.dark![8]}}
+      style={{ background: dreamlandTheme.colors!.dark![8] }}
     >
-      <Navbar selectedPage={selectedPage} setSelectedPage={setSelectedPage}/>
+      <Navbar selectedPage={selectedPage} setSelectedPage={setSelectedPage} />
       <AppShell.Main>
         {renderPage()}
       </AppShell.Main>

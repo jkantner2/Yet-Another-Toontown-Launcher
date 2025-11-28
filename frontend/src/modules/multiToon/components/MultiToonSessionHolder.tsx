@@ -1,18 +1,35 @@
 import { Box, Button, Group, Modal, Text } from "@mantine/core"
-import { MTProfile } from "../logic/MultiToonTypes"
-import { IconKey, IconLink, IconPlugOff, IconTrash } from "@tabler/icons-react"
+import { MTProfile, MTSession } from "../logic/MultiToonTypes"
+import { IconKey, IconLink, IconPlugConnected, IconPlugOff, IconTrash } from "@tabler/icons-react"
 import KeybindButtons from "./keybindButtons"
 import { useDisclosure } from "@mantine/hooks"
 import dreamlandTheme from "../../../themes/DreamlandTheme"
 import { CatppuccinColors } from "../../../themes/CatppuccinMocha"
+import { createSessionWithClick } from "../logic/multiUtils"
+import { notifications } from "@mantine/notifications"
 
 export type MultiToonSessionHolderProps = {
   profile: MTProfile
+  yatlSessions: MTSession[]
   EditMTProfile: (profile: MTProfile) => void;
+  addMTSession: (session: MTSession) => void;
 }
 
-const MultiToonSessionHolder: React.FC<MultiToonSessionHolderProps> = ({ profile, EditMTProfile }: MultiToonSessionHolderProps) => {
+const MultiToonSessionHolder: React.FC<MultiToonSessionHolderProps> = ({ profile, EditMTProfile, addMTSession, yatlSessions }: MultiToonSessionHolderProps) => {
   const [opened, { open, close }] = useDisclosure(false);
+  const sessions = yatlSessions;
+  const isSessionConnected = sessions.some((session) => {
+    return session.profile.name === profile.name
+  })
+
+  const handleConnectSession = async () => {
+    const session: MTSession = await createSessionWithClick(profile)
+    addMTSession(session)
+    notifications.show({
+      title: `Created New MultiToon Session ${session.mt_session}`,
+      message: `On Profile ${profile.name} for window ${session.window}`
+    })
+  }
 
   return (
     <>
@@ -34,11 +51,14 @@ const MultiToonSessionHolder: React.FC<MultiToonSessionHolderProps> = ({ profile
         <Group>
           <Button
             size="xs"
-            leftSection={<IconPlugOff size={"1rem"} color={CatppuccinColors.Mantle} />}
-            color={CatppuccinColors.Blue}
-            onClick={() => { }}
+            leftSection={isSessionConnected ?
+              <IconPlugConnected size={"1rem"} color={CatppuccinColors.Mantle} /> :
+              <IconPlugOff size={"1rem"} color={CatppuccinColors.Mantle} />
+            }
+            color={isSessionConnected ? CatppuccinColors.Green : CatppuccinColors.Blue}
+            onClick={handleConnectSession}
           >
-            <Text c={CatppuccinColors.Mantle} fw={600}>Connect Session</Text>
+            <Text c={CatppuccinColors.Mantle} fw={600}>{isSessionConnected ? "Connected" : "Connect Session"}</Text>
           </Button>
           <Button
             size="xs"
@@ -50,7 +70,7 @@ const MultiToonSessionHolder: React.FC<MultiToonSessionHolderProps> = ({ profile
           <Button
             size="xs"
             color={CatppuccinColors.Blue}
-            leftSection={<IconKey size={"1rem"} color={CatppuccinColors.Mantle}/>}
+            leftSection={<IconKey size={"1rem"} color={CatppuccinColors.Mantle} />}
             onClick={open}
           >
             <Text c={CatppuccinColors.Mantle} fw={600}>Edit Keymap</Text>
@@ -58,9 +78,8 @@ const MultiToonSessionHolder: React.FC<MultiToonSessionHolderProps> = ({ profile
           <Button
             size="xs"
             color={CatppuccinColors.Red}
-            leftSection={<IconTrash size={"1rem"} color={CatppuccinColors.Mantle}/>}
           >
-            <Text c={CatppuccinColors.Mantle} fw={600}>Delete</Text>
+            <IconTrash size={"1rem"} color={CatppuccinColors.Mantle} />
           </Button>
         </Group>
       </Box >

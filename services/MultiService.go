@@ -1,8 +1,9 @@
 package services
 
 import (
-	"github.com/rs/zerolog/log"
 	"YATL/src/multi"
+
+	"github.com/rs/zerolog/log"
 )
 
 type MultiService struct{}
@@ -36,6 +37,16 @@ func (g *MultiService) Mt_set_key_down(id uint8, window uint64, key string) {
 	GetSession(id).SetKeyDown(window, key)
 }
 
+func (g *MultiService) Mt_get_window_grom_pid(id uint8, pid int) int {
+	window, err := GetSession(id).GetWindowFromPID(pid)
+
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get window from PID")
+	}
+
+	return window
+}
+
 func (g *MultiService) Mt_shutdown(id uint8) {
 	RemoveSession(id)
 }
@@ -60,3 +71,4 @@ func (g *MultiService) LoadMTProfile(name string) map[string]string {
 func (g *MultiService) LoadAllMTProfileNames() map[string]string {
 	return multi.LoadAllKeyBindProfileNames()
 }
+
