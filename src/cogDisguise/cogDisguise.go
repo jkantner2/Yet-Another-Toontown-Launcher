@@ -25,23 +25,26 @@ func GetCogSuitInfoByDepartment(port int) SuitByDepartment{
 var bossbotRewards = map[int]string {
 	2097: "Final Fringe",
 	882: "First Fairway",
-	300: "Five Story",
-	200: "Four Story",
-	100: "Three Story",
+	235: "Five Story",
+	153: "Four Story DDL or Brghh",
+	135: "Four Story",
+	83: "Three Story",
 }
 var lawbotRewards = map[int]string {
 	1854: "Senior Wing",
 	781: "Junior Wing", 
-	300: "five story",
-	200: "four story",
-	100: "three story",
+	235: "five story",
+	153: "Four Story DDL or Brghh",
+	135: "four story",
+	83: "three story",
 }
 var cashbotRewards = map[int]string {
 	1854: "Bullion Mint",
 	781: "Coin Mint",
-	300: "Five Story",
-	200: "Four Story",
-	100: "Three Story",
+	235: "Five Story",
+	153: "Four Story DDL or Brghh",
+	135: "Four Story",
+	83: "Three Story",
 }
 var sellbotRewards = map[int]string {
 	1525: "Full Steel",
